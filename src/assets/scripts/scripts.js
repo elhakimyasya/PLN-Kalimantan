@@ -38,21 +38,67 @@ const chartRender = (data, chartElementId, chartType, title, generateChartDataFn
     const chartData = generateChartDataFn(data);
 
     if (chartData) {
-        // Destroy the previous chart instance if it exists
         if (chartInstances[chartElementId]) {
             chartInstances[chartElementId].destroy();
         }
 
-        // Create a new chart instance
         chartInstances[chartElementId] = new Chart(ctx, {
             type: chartType,
             data: chartData.data,
-            options: chartData.options
+            options: {
+                ...chartData.options,
+                plugins: {
+                    ...chartData.options.plugins,
+                    legend: {
+                        ...chartData.options.plugins?.legend,
+                        labels: {
+                            font: {
+                                family: '"Fustat", ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji',
+                                size: 14, // Ukuran font
+                                weight: 'normal', // Ketebalan font
+                                lineHeight: 1.2, // Tinggi baris font
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    ...chartData.options.scales,
+                    x: {
+                        ...chartData.options.scales?.x,
+                        ticks: {
+                            font: {
+                                family: '"Fustat", ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji',
+                                size: 12, // Ukuran font untuk sumbu X
+                            }
+                        }
+                    },
+                    y: {
+                        ...chartData.options.scales?.y,
+                        ticks: {
+                            font: {
+                                family: '"Fustat", ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji',
+                                size: 12, // Ukuran font untuk sumbu Y
+                            }
+                        }
+                    }
+                },
+                title: {
+                    ...chartData.options.title,
+                    display: true,
+                    text: title,
+                    font: {
+                        family: '"Fustat", ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji',
+                        size: 16, // Ukuran font untuk judul
+                        weight: 'bold', // Ketebalan font untuk judul
+                    }
+                }
+            }
         });
     } else {
         document.getElementById(chartElementId).classList.add('hidden');
     }
 };
+
 
 const selectOptionsRender = (selectId, values) => {
     if (selectId === "select_tahun") {
@@ -88,7 +134,7 @@ const tableDataSort = (data) => {
 
 const tableRender = (data) => {
     const headers = ["NO", "TAHUN", "BULAN", "TGL", "UP3", "ULP", "PENYULANG/KEYPOINT", "ZONA", "KELOMPOK GANGGUAN", "CUACA", "DURASI (Menit)", "JENIS GANGGUAN", "ENS (kWh)"];
-    const tableHTML = tableDataSort(data).map(row => `<tr class="whitespace-nowrap border-b text-center">${row.map(cell => `<td class="px-6 py-4">${cell}</td>`).join('')}</tr>`).join('');
+    const tableHTML = tableDataSort(data).map(row => `<tr class="whitespace-nowrap border-b text-center border-colorBorder dark:border-colorDarkBorder">${row.map(cell => `<td class="px-6 py-4">${cell}</td>`).join('')}</tr>`).join('');
     document.getElementById('data-visualization').innerHTML = `<div class="relative overflow-x-auto shadow-md sm:rounded-lg"><table class="w-full text-sm text-colorMeta dark:text-colorDarkMeta"><thead class="bg-colorMeta/10 text-xs uppercase"><tr>${headers.map(header => `<th scope="col" class="px-6 py-3">${header}</th>`).join('')}</tr></thead><tbody>${tableHTML}</tbody></table></div>`;
 };
 
@@ -144,7 +190,10 @@ const chartRenderJenisGangguanULP = (data) => {
             responsive: true,
             indexAxis: 'y',
             plugins: {
-                title: { display: true, text: 'JENIS GANGGUAN (ULP)' },
+                title: {
+                    display: true,
+                    text: 'JENIS GANGGUAN (ULP)'
+                },
                 tooltip: {
                     callbacks: {
                         afterLabel: function (tooltipItem) {
@@ -153,19 +202,12 @@ const chartRenderJenisGangguanULP = (data) => {
                         }
                     }
                 },
-                datalabels: { 
-                    color: '#000',
-                    anchor: 'end',
-                    align: 'end',
-                    formatter: (value) => value,
-                }
             },
             scales: {
                 x: { beginAtZero: true },
                 y: { beginAtZero: true }
             },
         },
-        plugins: [ChartDataLabels], 
     };
 };
 
@@ -234,15 +276,8 @@ const chartRenderJenisGangguanUP3 = (data) => {
                         }
                     }
                 },
-                datalabels: { 
-                    color: '#000',
-                    anchor: 'end',
-                    align: 'end',
-                    formatter: (value) => value,
-                }
             }
         },
-        plugins: [ChartDataLabels], 
     };
 };
 
@@ -282,16 +317,11 @@ const chartRenderPenyebabGangguan = (data) => {
                     position: 'top',
                     labels: {
                         boxWidth: 20,
-                        padding: 10
+                        padding: 10,
                     }
                 },
-                datalabels: {  // Aktifkan data labels
-                    color: '#000',
-                    formatter: (value) => value,
-                }
             },
         },
-        plugins: [ChartDataLabels],
     };
 };
 
