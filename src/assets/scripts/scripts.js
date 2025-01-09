@@ -106,7 +106,6 @@ const chartJenisGangguanRender = (data) => {
     const labels = Object.keys(chartData);
     const datasets = [];
     const totalPerULP = {};
-    let totalKeseluruhan = 0;
 
     const allJenisGangguan = new Set();
     Object.values(chartData).forEach(ulpData => {
@@ -128,9 +127,6 @@ const chartJenisGangguanRender = (data) => {
             borderColor: 'rgba(0,0,0,0.1)',
             borderWidth: 1
         });
-
-        // Menambahkan jumlah kategori untuk total keseluruhan
-        totalKeseluruhan += dataForJenisGangguan.reduce((sum, value) => sum + value, 0);
     });
 
     datasets.push({
@@ -143,14 +139,8 @@ const chartJenisGangguanRender = (data) => {
 
     return {
         data: {
-            labels: [...labels, 'TOTAL'],  // Menambahkan label TOTAL
-            datasets: [...datasets, {
-                label: 'TOTAL KESELURUHAN',
-                data: new Array(labels.length).fill(totalKeseluruhan), // Total keseluruhan di setiap label
-                backgroundColor: 'rgba(0, 0, 0, 0.2)',
-                borderColor: 'rgba(0,0,0,0.1)',
-                borderWidth: 1
-            }]
+            labels: labels,
+            datasets: datasets
         },
         options: {
             responsive: true,
@@ -165,7 +155,7 @@ const chartJenisGangguanRender = (data) => {
                     callbacks: {
                         afterLabel: function (tooltipItem) {
                             const ulp = tooltipItem.label;
-                            return `TOTAL: ${totalPerULP[ulp]} | TOTAL KESELURUHAN: ${totalKeseluruhan}`;
+                            return `TOTAL: ${totalPerULP[ulp]}`;
                         }
                     }
                 }
@@ -173,7 +163,6 @@ const chartJenisGangguanRender = (data) => {
         }
     };
 };
-
 
 const chartPenyebabGangguanRender = (data) => {
     const chartData = {};
