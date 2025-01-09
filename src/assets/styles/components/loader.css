@@ -1,0 +1,59 @@
+@keyframes animRotate {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+@keyframes animDash {
+    0% {
+        stroke-dasharray: 1, 200;
+        stroke-dashoffset: 0;
+    }
+    50% {
+        stroke-dasharray: 89, 200;
+        stroke-dashoffset: -35px;
+    }
+    100% {
+        stroke-dasharray: 89, 200;
+        stroke-dashoffset: -124px;
+    }
+}
+@keyframes animColor {
+    100%,
+    0% {
+        stroke: #4285f4;
+    }
+    40% {
+        stroke: #db4437;
+    }
+    66% {
+        stroke: #f4b400;
+    }
+    80%,
+    90% {
+        stroke: #0f9d58;
+    }
+}
+
+/* Preloader */
+@keyframes animIndeterminate {
+    0% {
+        transform: translateX(0) scaleX(0);
+    }
+    40% {
+        transform: translateX(0) scaleX(0.4);
+    }
+    100% {
+        transform: translateX(100%) scaleX(0.5);
+    }
+}
+@keyframes animIndeterminateRTL {
+    0% {
+        transform: translateX(0) scaleX(0);
+    }
+    40% {
+        transform: translateX(0) scaleX(0.4);
+    }
+    100% {
+        transform: translateX(-100%) scaleX(0.5);
+    }
+}

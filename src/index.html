@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="overflow-hidden">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Data Visualization</title>
+        <link href="../dist/assets/styles/styles.min.css" rel="stylesheet" />
+    </head>
+    <body class="bg-colorBackground text-colorText dark:bg-colorDarkBackground dark:text-colorDarkText">
+        <div id="visualization-container" class="mx-auto w-full max-w-6xl p-4">
+            <div class="mb-6 grid w-full grid-cols-2 gap-4 last:mb-0 lg:grid-cols-3 xl:grid-cols-4">
+                <!-- Tahun -->
+                <div class="elcreative_input">
+                    <select id="select_tahun" name="select_tahun">
+                        <option value="0" selected="">Semua</option>
+                    </select>
+                    <label for="select_tahun">Tahun</label>
+                </div>
+
+                <!-- Bulan -->
+                <div class="elcreative_input">
+                    <select id="select_bulan" name="select_bulan">
+                        <option value="0" selected="">Semua</option>
+                    </select>
+                    <label for="select_bulan">Bulan</label>
+                </div>
+
+                <!-- Tanggal -->
+                <div class="elcreative_input">
+                    <select id="select_tanggal" name="select_tanggal">
+                        <option value="0" selected="">Semua</option>
+                    </select>
+                    <label for="select_tanggal">Tanggal</label>
+                </div>
+
+                <!-- UP3 -->
+                <div class="elcreative_input">
+                    <select id="select_up3" name="select_up3">
+                        <option value="0" selected="">Semua</option>
+                    </select>
+                    <label for="select_up3">UP3</label>
+                </div>
+
+                <!-- ULP -->
+                <div class="elcreative_input">
+                    <select id="select_ulp" name="select_ulp">
+                        <option value="0" selected="">Semua</option>
+                    </select>
+                    <label for="select_ulp">ULP</label>
+                </div>
+
+                <!-- Penyulang -->
+                <div class="elcreative_input">
+                    <select id="select_penyulang" name="select_penyulang">
+                        <option value="0" selected="">Semua</option>
+                    </select>
+                    <label for="select_penyulang">Penyulang</label>
+                </div>
+
+                <!-- Zona -->
+                <div class="elcreative_input">
+                    <select id="select_zona" name="select_zona">
+                        <option value="0" selected="">Semua</option>
+                    </select>
+                    <label for="select_zona">Zona</label>
+                </div>
+
+                <!-- Kelompok Gangguan -->
+                <div class="elcreative_input">
+                    <select id="select_kelompok_gangguan" name="select_kelompok_gangguan">
+                        <option value="0" selected="">Semua</option>
+                    </select>
+                    <label for="select_kelompok_gangguan">Kelompok Gangguan</label>
+                </div>
+
+                <!-- Cuaca -->
+                <div class="elcreative_input">
+                    <select id="select_cuaca" name="select_cuaca">
+                        <option value="0" selected="">Semua</option>
+                    </select>
+                    <label for="select_cuaca">Cuaca</label>
+                </div>
+
+                <!-- Jenis Gangguan -->
+                <div class="elcreative_input">
+                    <select id="select_jenis_gangguan" name="select_jenis_gangguan">
+                        <option value="0" selected="">Semua</option>
+                    </select>
+                    <label for="select_jenis_gangguan">Jenis Gangguan</label>
+                </div>
+            </div>
+
+            <div id="container_chart" class="container_chart mb-6 grid w-full grid-cols-1 items-start gap-4 last:mb-0 xl:grid-cols-2">
+                <div class="flex flex-col items-center justify-center">
+                    <canvas id="chartJenisGangguan" class="chart_jenis_gangguan mb-4 text-start text-3xl font-bold last:mb-0" width="400" height="400"></canvas>
+                </div>
+
+                <div class="flex flex-col items-center justify-center">
+                    <canvas id="chartPenyebabGangguan" class="chart_penyebab_gangguan mb-4 text-start text-3xl font-bold last:mb-0" width="400" height="400"></canvas>
+                </div>
+            </div>
+
+            <h2 class="mb-4 text-start text-2xl font-bold last:mb-0">Data</h2>
+            <div id="data-visualization"></div>
+        </div>
+
+        <div class="loaders fixed inset-0 flex items-center justify-center">
+            <div class="mx-auto flex items-center justify-center">
+                <svg class="h-[42px] w-[42px] shrink-0 grow-0 animate-[animRotate_1s_linear_infinite]" viewBox="25 25 50 50" width="42" height="42" aria-hidden="true">
+                    <circle class="animate-[animDash_1s_ease-in-out_infinite,animColor_1s_ease-in-out_infinite] [stroke-dasharray:1,200] [stroke-dashoffset:0] [stroke-linecap:round]" cx="50" cy="50" r="20" fill="none" stroke-width="4" stroke-miterlimit="10"></circle>
+                </svg>
+            </div>
+
+            <div class="absolute inset-0 -z-10 h-full w-full bg-colorBackground/50 dark:bg-colorDarkBackground/50"></div>
+        </div>
+        <script src="../dist/assets/scripts/scripts.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </body>
+</html>

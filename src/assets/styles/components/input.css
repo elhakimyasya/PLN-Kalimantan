@@ -1,0 +1,65 @@
+.elcreative_input {
+    @apply relative;
+}
+.elcreative_input > select {
+    @apply min-h-[47.333px] cursor-pointer;
+}
+.elcreative_input > input,
+.elcreative_input > textarea,
+.elcreative_input > select {
+    @apply min-h-12 w-full appearance-none rounded-md border border-colorBorder bg-colorBackground p-3 text-sm text-transparent ring-colorKey transition-[border-color,box-shadow,margin,padding,transform,top] ease-in-out focus:border-colorKey focus:text-colorText focus:shadow-[inset_1px_0_var(--colorKey),inset_-1px_0_var(--colorKey),inset_0_-1px_var(--colorKey),inset_0_1px_var(--colorKey)] focus:shadow-colorKey focus:outline-0 focus:ring-1 disabled:cursor-no-drop dark:border-colorDarkBorder dark:bg-colorDarkBackground dark:ring-colorDarkKey dark:focus:border-colorDarkKey dark:focus:text-colorDarkText dark:focus:shadow-colorDarkKey;
+}
+.bg_alt .elcreative_input > input,
+.bg_alt .elcreative_input > textarea,
+.bg_alt .elcreative_input > select {
+    @apply dark:bg-colorDarkBackgroundAlt;
+}
+
+.elcreative_input > input,
+.elcreative_input > textarea,
+.elcreative_input > select {
+    @apply placeholder:text-transparent focus:placeholder:text-colorMeta dark:focus:placeholder:text-colorDarkText;
+}
+.elcreative_input > input[required] ~ label,
+.elcreative_input > textarea[required] ~ label,
+.elcreative_input > select[required] ~ label {
+    @apply after:text-red-700 after:content-['*'] dark:after:text-red-300 ltr:after:ml-1 rtl:after:mr-1;
+}
+.elcreative_input > input:not(:placeholder-shown),
+.elcreative_input > textarea:not(:placeholder-shown),
+.elcreative_input > select:not(:placeholder-shown) {
+    @apply text-colorText disabled:text-colorMeta dark:text-colorDarkText dark:disabled:text-colorDarkMeta;
+}
+
+.elcreative_input > input:focus + label,
+.elcreative_input > textarea:focus + label,
+.elcreative_input > select:focus + label {
+    @apply text-colorKey dark:text-colorDarkKey;
+}
+
+.elcreative_input > input:focus + label,
+.elcreative_input > textarea:focus + label,
+.elcreative_input > select:focus + label,
+.elcreative_input > input:not(:placeholder-shown) + label,
+.elcreative_input > textarea:not(:placeholder-shown) + label,
+.elcreative_input > select:not(:placeholder-shown) + label {
+    @apply top-0 translate-y-[-34%] scale-[0.8] px-2;
+}
+
+/* Additional */
+.elcreative_input > label {
+    @apply pointer-events-none absolute top-2/4 mx-[5.6px] line-clamp-1 -translate-y-[50%] select-none bg-colorBackground px-[5.6px] text-sm leading-normal text-colorMeta transition-[border-color,box-shadow,transform,top,padding,margin] ease-in-out dark:bg-colorDarkBackground dark:text-colorDarkMeta ltr:left-0 ltr:origin-top-left rtl:right-0 rtl:origin-top-right;
+}
+.bg_alt .elcreative_input > label {
+    @apply dark:bg-colorDarkBackgroundAlt;
+}
+
+.elcreative_input > textarea ~ label {
+    @apply top-5;
+}
+.elcreative_input > input[type='file'] {
+    @apply cursor-pointer py-[11px];
+}
+.elcreative_input > input[type='color'] {
+    @apply min-h-[45px] cursor-pointer;
+}
