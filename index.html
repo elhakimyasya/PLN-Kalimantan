@@ -7,9 +7,6 @@
         <link href="./dist/assets/styles/styles.min.css" rel="stylesheet" />
     </head>
     <body class="bg-colorBackground text-colorText dark:bg-colorDarkBackground dark:text-colorDarkText">
-
-
-
         <div id="visualization-container" class="mx-auto w-full max-w-6xl p-4">
             <div class="mb-6 grid w-full grid-cols-2 gap-4 last:mb-0 lg:grid-cols-3 xl:grid-cols-4">
                 <!-- Tahun -->
@@ -95,20 +92,24 @@
 
             <div id="container_chart" class="container_chart mb-6 grid w-full grid-cols-1 items-start gap-4 last:mb-0 xl:grid-cols-2">
                 <div class="flex flex-col items-center justify-center">
-                    <canvas id="chartJenisGangguanULP" class="chart_jenis_gangguan_ulp mb-4 text-start text-3xl font-bold last:mb-0" width="400" height="400"></canvas>
+                    <canvas id="chartJenisGangguanUP3" class="chart_jenis_gangguan_up3 mb-4 text-start text-3xl font-bold last:mb-0" width="400" height="400"></canvas>
                 </div>
 
                 <div class="flex flex-col items-center justify-center">
-                    <canvas id="chartJenisGangguanUP3" class="chart_jenis_gangguan_up3 mb-4 text-start text-3xl font-bold last:mb-0" width="400" height="400"></canvas>
+                    <canvas id="chartJenisGangguanULP" class="chart_jenis_gangguan_ulp mb-4 text-start text-3xl font-bold last:mb-0" width="400" height="400"></canvas>
                 </div>
 
                 <div class="flex flex-col items-center justify-center">
                     <canvas id="chartPenyebabGangguan" class="chart_penyebab_gangguan mb-4 text-start text-3xl font-bold last:mb-0" width="400" height="400"></canvas>
                 </div>
+
+                <div class="flex flex-col items-center justify-center">
+                    <canvas id="chartENS" class="chart_ens mb-4 text-start text-3xl font-bold last:mb-0" width="400" height="400"></canvas>
+                </div>
             </div>
 
             <h2 class="mb-4 text-start text-2xl font-bold last:mb-0">Data</h2>
-            <div id="data-visualization"></div>
+            <!-- <div id="data-visualization"></div> -->
         </div>
 
         <div class="loaders fixed inset-0 flex items-center justify-center">
@@ -121,6 +122,12 @@
             <div class="absolute inset-0 -z-10 h-full w-full bg-colorBackground/50 dark:bg-colorDarkBackground/50"></div>
         </div>
 
+        <script>
+            const config = {
+                initialRangeStart: 1,
+                rowsPerFetch: 18000
+            };
+        </script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="./dist/assets/scripts/scripts.min.js"></script>
     </body>

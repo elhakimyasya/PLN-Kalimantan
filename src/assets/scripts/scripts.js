@@ -1,8 +1,8 @@
 const spreadsheetId = '1EyZ0U4_lsD5Xi3IBmNkz2Rgo4LV4OoWC3Ldw2E2GrBM';
 const sheetName = 'Database';
 const apiKey = 'AIzaSyDwiv0JN7BQeuc6XEYLBf_uTHhYZNj-65I';
-const initialRangeStart = 1;
-const rowsPerFetch = 18000;
+const initialRangeStart = config.initialRangeStart || 1;
+const rowsPerFetch = config.rowsPerFetch || 100;
 
 const chartInstances = {};
 
@@ -56,7 +56,7 @@ const chartRender = (data, chartElementId, chartType, title, generateChartDataFn
                                 family: '"Fustat", ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji',
                                 size: 14, // Ukuran font
                                 weight: 'normal', // Ketebalan font
-                                lineHeight: 1.2, // Tinggi baris font
+                                barHeight: 1.2, // Tinggi baris font
                             }
                         }
                     }
@@ -99,7 +99,6 @@ const chartRender = (data, chartElementId, chartType, title, generateChartDataFn
     }
 };
 
-
 const selectOptionsRender = (selectId, values) => {
     if (selectId === "select_tahun") {
         return values.sort((a, b) => parseInt(b, 10) - parseInt(a, 10));
@@ -135,7 +134,11 @@ const tableDataSort = (data) => {
 const tableRender = (data) => {
     const headers = ["NO", "TAHUN", "BULAN", "TGL", "UP3", "ULP", "PENYULANG/KEYPOINT", "ZONA", "KELOMPOK GANGGUAN", "CUACA", "DURASI (Menit)", "JENIS GANGGUAN", "ENS (kWh)"];
     const tableHTML = tableDataSort(data).map(row => `<tr class="whitespace-nowrap border-b text-center border-colorBorder dark:border-colorDarkBorder">${row.map(cell => `<td class="px-6 py-4">${cell}</td>`).join('')}</tr>`).join('');
-    document.getElementById('data-visualization').innerHTML = `<div class="relative overflow-x-auto shadow-md sm:rounded-lg"><table class="w-full text-sm text-colorMeta dark:text-colorDarkMeta"><thead class="bg-colorMeta/10 text-xs uppercase"><tr>${headers.map(header => `<th scope="col" class="px-6 py-3">${header}</th>`).join('')}</tr></thead><tbody>${tableHTML}</tbody></table></div>`;
+
+    const tableData = document.getElementById('data-visualization');
+    if (tableData) {
+        tableData.innerHTML = `<div class="relative overflow-x-auto shadow-md sm:rounded-lg"><table class="w-full text-sm text-colorMeta dark:text-colorDarkMeta"><thead class="bg-colorMeta/10 text-xs uppercase"><tr>${headers.map(header => `<th scope="col" class="px-6 py-3">${header}</th>`).join('')}</tr></thead><tbody>${tableHTML}</tbody></table></div>`;
+    }
 };
 
 const chartRenderJenisGangguanULP = (data) => {
@@ -342,6 +345,7 @@ const fetchData = async (rangeStart) => {
             chartRender(filteredData, 'chartJenisGangguanULP', 'bar', 'JENIS GANGGUAN', chartRenderJenisGangguanULP);
             chartRender(filteredData, 'chartJenisGangguanUP3', 'bar', 'JENIS GANGGUAN', chartRenderJenisGangguanUP3);
             chartRender(filteredData, 'chartPenyebabGangguan', 'pie', 'PENYEBAB GANGGUAN', chartRenderPenyebabGangguan);
+
         }
     } catch (error) {
         console.error('Error fetching data:', error);
@@ -352,7 +356,7 @@ const fetchData = async (rangeStart) => {
 };
 
 const adjustCanvasHeight = () => {
-    const canvas = document.querySelectorAll(['.chart_jenis_gangguan_ulp', '.chart_jenis_gangguan_up3', '.chart_penyebab_gangguan']);
+    const canvas = document.querySelectorAll(['.chart_jenis_gangguan_ulp', '.chart_jenis_gangguan_up3', '.chart_penyebab_gangguan', '.chart_ens']);
     canvas.forEach((element) => {
         const windowHeight = window.innerHeight;
         element.height = windowHeight * 0.4;
