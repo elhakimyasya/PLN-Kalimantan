@@ -106,6 +106,7 @@ const chartJenisGangguanRender = (data) => {
     const labels = Object.keys(chartData);
     const datasets = [];
     const totalPerULP = {};
+    let totalKeseluruhan = 0;
 
     const allJenisGangguan = new Set();
     Object.values(chartData).forEach(ulpData => {
@@ -127,6 +128,9 @@ const chartJenisGangguanRender = (data) => {
             borderColor: 'rgba(0,0,0,0.1)',
             borderWidth: 1
         });
+
+        // Menambahkan jumlah kategori untuk total keseluruhan
+        totalKeseluruhan += dataForJenisGangguan.reduce((sum, value) => sum + value, 0);
     });
 
     datasets.push({
@@ -139,8 +143,14 @@ const chartJenisGangguanRender = (data) => {
 
     return {
         data: {
-            labels: labels,
-            datasets: datasets
+            labels: [...labels, 'TOTAL'],  // Menambahkan label TOTAL
+            datasets: [...datasets, {
+                label: 'TOTAL KESELURUHAN',
+                data: new Array(labels.length).fill(totalKeseluruhan), // Total keseluruhan di setiap label
+                backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                borderColor: 'rgba(0,0,0,0.1)',
+                borderWidth: 1
+            }]
         },
         options: {
             responsive: true,
@@ -155,7 +165,7 @@ const chartJenisGangguanRender = (data) => {
                     callbacks: {
                         afterLabel: function (tooltipItem) {
                             const ulp = tooltipItem.label;
-                            return `TOTAL: ${totalPerULP[ulp]}`;
+                            return `TOTAL: ${totalPerULP[ulp]} | TOTAL KESELURUHAN: ${totalKeseluruhan}`;
                         }
                     }
                 }
@@ -163,6 +173,7 @@ const chartJenisGangguanRender = (data) => {
         }
     };
 };
+
 
 const chartPenyebabGangguanRender = (data) => {
     const chartData = {};
@@ -173,6 +184,8 @@ const chartPenyebabGangguanRender = (data) => {
 
     const labels = Object.keys(chartData);
     const dataValues = Object.values(chartData);
+
+    const total = dataValues.reduce((sum, value) => sum + value, 0);
 
     return {
         data: {
@@ -189,9 +202,9 @@ const chartPenyebabGangguanRender = (data) => {
                 title: { display: true, text: 'PENYEBAB GANGGUAN' },
                 tooltip: {
                     callbacks: {
-                        label: function (tooltipItem) {
-                            return `${tooltipItem.label}: ${tooltipItem.raw} GANGGUAN`;
-                        }
+                        afterLabel: function (tooltipItem) {
+                            return `JUMLAH KESELURUHAN: ${total}`;
+                        },
                     }
                 },
                 legend: {
@@ -205,6 +218,8 @@ const chartPenyebabGangguanRender = (data) => {
         }
     };
 };
+
+
 
 const fetchData = async (rangeStart) => {
     try {

@@ -3,7 +3,7 @@ module.exports = {
     content: [
         './src/**/*.html',
         './src/**/*.js',
-        '{*.html}',
+        './*.html',
     ],
     theme: {
         extend: {
