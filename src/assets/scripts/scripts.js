@@ -2,10 +2,8 @@ const spreadsheetId = '1EyZ0U4_lsD5Xi3IBmNkz2Rgo4LV4OoWC3Ldw2E2GrBM';
 const sheetName = 'Database';
 const apiKey = 'AIzaSyDwiv0JN7BQeuc6XEYLBf_uTHhYZNj-65I';
 const initialRangeStart = 1;
-const rowsPerFetch = 999999;
+const rowsPerFetch = 18000;
 
-let chartJenisGangguanInstance = null;
-let chartPenyebabGangguanInstance = null;
 const chartInstances = {};
 
 let rawData = [];
@@ -94,7 +92,7 @@ const tableRender = (data) => {
     document.getElementById('data-visualization').innerHTML = `<div class="relative overflow-x-auto shadow-md sm:rounded-lg"><table class="w-full text-sm text-colorMeta dark:text-colorDarkMeta"><thead class="bg-colorMeta/10 text-xs uppercase"><tr>${headers.map(header => `<th scope="col" class="px-6 py-3">${header}</th>`).join('')}</tr></thead><tbody>${tableHTML}</tbody></table></div>`;
 };
 
-const chartJenisGangguanRender = (data) => {
+const chartRenderJenisGangguanULP = (data) => {
     const chartData = {};
     data.forEach(row => {
         const ulp = row[fields.select_ulp];
@@ -145,12 +143,8 @@ const chartJenisGangguanRender = (data) => {
         options: {
             responsive: true,
             indexAxis: 'y',
-            scales: {
-                x: { beginAtZero: true },
-                y: { beginAtZero: true }
-            },
             plugins: {
-                title: { display: true, text: 'JENIS GANGGUAN' },
+                title: { display: true, text: 'JENIS GANGGUAN (ULP)' },
                 tooltip: {
                     callbacks: {
                         afterLabel: function (tooltipItem) {
@@ -158,13 +152,101 @@ const chartJenisGangguanRender = (data) => {
                             return `TOTAL: ${totalPerULP[ulp]}`;
                         }
                     }
+                },
+                datalabels: { 
+                    color: '#000',
+                    anchor: 'end',
+                    align: 'end',
+                    formatter: (value) => value,
                 }
-            }
-        }
+            },
+            scales: {
+                x: { beginAtZero: true },
+                y: { beginAtZero: true }
+            },
+        },
+        plugins: [ChartDataLabels], 
     };
 };
 
-const chartPenyebabGangguanRender = (data) => {
+const chartRenderJenisGangguanUP3 = (data) => {
+    const chartData = {};
+    data.forEach(row => {
+        const up3 = row[fields.select_up3];
+        const jenisGangguan = row[fields.select_jenis_gangguan];
+        chartData[up3] = chartData[up3] || {};
+        chartData[up3][jenisGangguan] = (chartData[up3][jenisGangguan] || 0) + 1;
+    });
+
+    const labels = Object.keys(chartData);
+    const datasets = [];
+    const totalPerUP3 = {};
+
+    const allJenisGangguan = new Set();
+    Object.values(chartData).forEach(up3Data => {
+        Object.keys(up3Data).forEach(jenisGangguan => {
+            allJenisGangguan.add(jenisGangguan);
+        });
+    });
+
+    allJenisGangguan.forEach(jenisGangguan => {
+        const dataForJenisGangguan = labels.map(up3 => chartData[up3][jenisGangguan] || 0);
+        labels.forEach(up3 => {
+            totalPerUP3[up3] = (totalPerUP3[up3] || 0) + (chartData[up3][jenisGangguan] || 0);
+        });
+
+        datasets.push({
+            label: jenisGangguan,
+            data: dataForJenisGangguan,
+            backgroundColor: chartRandomColor(),
+            borderColor: 'rgba(0,0,0,0.1)',
+            borderWidth: 1
+        });
+    });
+
+    datasets.push({
+        label: 'TOTAL',
+        data: labels.map(up3 => totalPerUP3[up3]),
+        backgroundColor: 'rgba(0, 0, 0, 0.1)',
+        borderColor: 'rgba(0,0,0,0.1)',
+        borderWidth: 1
+    });
+
+    return {
+        data: {
+            labels: labels,
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            indexAxis: 'x',
+            scales: {
+                x: { beginAtZero: true },
+                y: { beginAtZero: true }
+            },
+            plugins: {
+                title: { display: true, text: 'JENIS GANGGUAN (UP3)' },
+                tooltip: {
+                    callbacks: {
+                        afterLabel: function (tooltipItem) {
+                            const up3 = tooltipItem.label;
+                            return `TOTAL: ${totalPerUP3[up3]}`;
+                        }
+                    }
+                },
+                datalabels: { 
+                    color: '#000',
+                    anchor: 'end',
+                    align: 'end',
+                    formatter: (value) => value,
+                }
+            }
+        },
+        plugins: [ChartDataLabels], 
+    };
+};
+
+const chartRenderPenyebabGangguan = (data) => {
     const chartData = {};
     data.forEach(row => {
         const penyebabGangguan = row[fields.select_kelompok_gangguan];
@@ -202,13 +284,16 @@ const chartPenyebabGangguanRender = (data) => {
                         boxWidth: 20,
                         padding: 10
                     }
+                },
+                datalabels: {  // Aktifkan data labels
+                    color: '#000',
+                    formatter: (value) => value,
                 }
-            }
-        }
+            },
+        },
+        plugins: [ChartDataLabels],
     };
 };
-
-
 
 const fetchData = async (rangeStart) => {
     try {
@@ -224,8 +309,9 @@ const fetchData = async (rangeStart) => {
 
             tableRender(filteredData);
 
-            chartRender(filteredData, 'chartJenisGangguan', 'bar', 'JENIS GANGGUAN', chartJenisGangguanRender);
-            chartRender(filteredData, 'chartPenyebabGangguan', 'pie', 'PENYEBAB GANGGUAN', chartPenyebabGangguanRender);
+            chartRender(filteredData, 'chartJenisGangguanULP', 'bar', 'JENIS GANGGUAN', chartRenderJenisGangguanULP);
+            chartRender(filteredData, 'chartJenisGangguanUP3', 'bar', 'JENIS GANGGUAN', chartRenderJenisGangguanUP3);
+            chartRender(filteredData, 'chartPenyebabGangguan', 'pie', 'PENYEBAB GANGGUAN', chartRenderPenyebabGangguan);
         }
     } catch (error) {
         console.error('Error fetching data:', error);
@@ -236,7 +322,7 @@ const fetchData = async (rangeStart) => {
 };
 
 const adjustCanvasHeight = () => {
-    const canvas = document.querySelectorAll(['.chart_jenis_gangguan', '.chart_penyebab_gangguan']);
+    const canvas = document.querySelectorAll(['.chart_jenis_gangguan_ulp', '.chart_jenis_gangguan_up3', '.chart_penyebab_gangguan']);
     canvas.forEach((element) => {
         const windowHeight = window.innerHeight;
         element.height = windowHeight * 0.4;
@@ -260,8 +346,9 @@ document.querySelectorAll('select').forEach(element => element.addEventListener(
 
     tableRender(filteredData);
 
-    chartRender(filteredData, 'chartJenisGangguan', 'bar', 'JENIS GANGGUAN', chartJenisGangguanRender);
-    chartRender(filteredData, 'chartPenyebabGangguan', 'pie', 'PENYEBAB GANGGUAN', chartPenyebabGangguanRender);
+    chartRender(filteredData, 'chartJenisGangguanULP', 'bar', 'JENIS GANGGUAN', chartRenderJenisGangguanULP);
+    chartRender(filteredData, 'chartJenisGangguanUP3', 'bar', 'JENIS GANGGUAN', chartRenderJenisGangguanUP3);
+    chartRender(filteredData, 'chartPenyebabGangguan', 'pie', 'PENYEBAB GANGGUAN', chartRenderPenyebabGangguan);
 
     document.querySelector('.loaders').classList.add('hidden');
     document.documentElement.classList.remove('overflow-hidden');

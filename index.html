@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Data Visualization</title>
+        <title>Dashboard Gangguan Penyulang PLN UP2D Kalimantan Barat</title>
         <link href="./dist/assets/styles/styles.min.css" rel="stylesheet" />
     </head>
     <body class="bg-colorBackground text-colorText dark:bg-colorDarkBackground dark:text-colorDarkText">
@@ -92,7 +92,11 @@
 
             <div id="container_chart" class="container_chart mb-6 grid w-full grid-cols-1 items-start gap-4 last:mb-0 xl:grid-cols-2">
                 <div class="flex flex-col items-center justify-center">
-                    <canvas id="chartJenisGangguan" class="chart_jenis_gangguan mb-4 text-start text-3xl font-bold last:mb-0" width="400" height="400"></canvas>
+                    <canvas id="chartJenisGangguanULP" class="chart_jenis_gangguan_ulp mb-4 text-start text-3xl font-bold last:mb-0" width="400" height="400"></canvas>
+                </div>
+
+                <div class="flex flex-col items-center justify-center">
+                    <canvas id="chartJenisGangguanUP3" class="chart_jenis_gangguan_up3 mb-4 text-start text-3xl font-bold last:mb-0" width="400" height="400"></canvas>
                 </div>
 
                 <div class="flex flex-col items-center justify-center">
@@ -113,7 +117,9 @@
 
             <div class="absolute inset-0 -z-10 h-full w-full bg-colorBackground/50 dark:bg-colorDarkBackground/50"></div>
         </div>
+
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
         <script src="./dist/assets/scripts/scripts.min.js"></script>
     </body>
 </html>
