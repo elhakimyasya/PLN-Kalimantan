@@ -26,6 +26,10 @@ const sortOrder = {
     bulan: ["JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"],
 };
 
+const formatNumber = (number) => {
+    return new Intl.NumberFormat().format(number);
+};
+
 const chartRandomColor = () => {
     const materialColors = [
         "#F44336", "#E91E63", "#9C27B0", "#673AB7", "#3F51B5", "#2196F3", "#03A9F4", "#00BCD4", "#009688", "#4CAF50", "#8BC34A", "#CDDC39", "#FFEB3B", "#FFC107", "#FF9800", "#FF5722", "#795548", "#9E9E9E", "#607D8B", "#D32F2F", "#1976D2", "#388E3C", "#0288D1", "#8E24AA", "#7B1FA2", "#0288D1", "#5C6BC0", "#FF5722", "#673AB7", "#FF7043", "#2196F3", "#673AB7", "#0097A7", "#4CAF50", "#388E3C", "#FF9800", "#8BC34A", "#F57C00", "#FF3D00", "#795548", "#78909C", "#536DFE", "#FF4081", "#18FFFF", "#00C853", "#FFAB00", "#8D6E63", "#9E9E9E", "#607D8B", "#00E5FF", "#FF5722", "#00B8D4", "#E64A19", "#FBC02D", "#29B6F6", "#7E57C2"
@@ -103,12 +107,15 @@ const selectOptionsRender = (selectId, values) => {
     if (selectId === "select_tahun") {
         return values.sort((a, b) => parseInt(b, 10) - parseInt(a, 10));
     }
+
     if (selectId === "select_bulan") {
         return values.sort((a, b) => sortOrder.bulan.indexOf(a.toUpperCase()) - sortOrder.bulan.indexOf(b.toUpperCase()));
     }
+
     if (selectId === "select_tanggal") {
         return values.sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
     }
+
     return values.sort();
 };
 
@@ -127,7 +134,7 @@ const tableDataSort = (data) => {
         if (dataA[1] !== dataB[1]) return compare(dataB[1], dataA[1]);
         if (dataA[2] !== dataB[2]) return compare(dataA[2], dataB[2], true);
         if (parseInt(dataA[3], 10) !== parseInt(dataB[3], 10)) return parseInt(dataA[3], 10) - parseInt(dataB[3], 10);
-        return dataA.slice(4).join('').localeCompare(dataB.slice(4).join(''));
+        return dataA[fields.select_cuaca].localeCompare(dataB[fields.select_cuaca]);
     });
 };
 
@@ -143,11 +150,14 @@ const tableRender = (data) => {
 
 const chartRenderJenisGangguanULP = (data) => {
     const chartData = {};
+    let totalEntries = 0;
+
     data.forEach(row => {
         const ulp = row[fields.select_ulp];
         const jenisGangguan = row[fields.select_jenis_gangguan];
         chartData[ulp] = chartData[ulp] || {};
         chartData[ulp][jenisGangguan] = (chartData[ulp][jenisGangguan] || 0) + 1;
+        totalEntries += 1;
     });
 
     const labels = Object.keys(chartData);
@@ -177,7 +187,7 @@ const chartRenderJenisGangguanULP = (data) => {
     });
 
     datasets.push({
-        label: 'TOTAL',
+        label: 'JUMLAH',
         data: labels.map(ulp => totalPerULP[ulp]),
         backgroundColor: 'rgba(0, 0, 0, 0.1)',
         borderColor: 'rgba(0,0,0,0.1)',
@@ -195,13 +205,13 @@ const chartRenderJenisGangguanULP = (data) => {
             plugins: {
                 title: {
                     display: true,
-                    text: 'JENIS GANGGUAN (ULP)'
+                    text: `TOTAL ${formatNumber(totalEntries)} JENIS GANGGUAN (ULP)`
                 },
                 tooltip: {
                     callbacks: {
                         afterLabel: function (tooltipItem) {
                             const ulp = tooltipItem.label;
-                            return `TOTAL: ${totalPerULP[ulp]}`;
+                            return `JUMLAH: ${formatNumber(totalPerULP[ulp])}`;
                         }
                     }
                 },
@@ -216,11 +226,14 @@ const chartRenderJenisGangguanULP = (data) => {
 
 const chartRenderJenisGangguanUP3 = (data) => {
     const chartData = {};
+    let totalEntries = 0;
+
     data.forEach(row => {
         const up3 = row[fields.select_up3];
         const jenisGangguan = row[fields.select_jenis_gangguan];
         chartData[up3] = chartData[up3] || {};
         chartData[up3][jenisGangguan] = (chartData[up3][jenisGangguan] || 0) + 1;
+        totalEntries += 1; // Increment total count
     });
 
     const labels = Object.keys(chartData);
@@ -250,7 +263,7 @@ const chartRenderJenisGangguanUP3 = (data) => {
     });
 
     datasets.push({
-        label: 'TOTAL',
+        label: 'JUMLAH',
         data: labels.map(up3 => totalPerUP3[up3]),
         backgroundColor: 'rgba(0, 0, 0, 0.1)',
         borderColor: 'rgba(0,0,0,0.1)',
@@ -270,12 +283,15 @@ const chartRenderJenisGangguanUP3 = (data) => {
                 y: { beginAtZero: true }
             },
             plugins: {
-                title: { display: true, text: 'JENIS GANGGUAN (UP3)' },
+                title: {
+                    display: true,
+                    text: `TOTAL ${formatNumber(totalEntries)} JENIS GANGGUAN (UP3)` // Include total entries in title
+                },
                 tooltip: {
                     callbacks: {
                         afterLabel: function (tooltipItem) {
                             const up3 = tooltipItem.label;
-                            return `TOTAL: ${totalPerUP3[up3]}`;
+                            return `JUMLAH: ${formatNumber(totalPerUP3[up3])}`;
                         }
                     }
                 },
@@ -286,9 +302,12 @@ const chartRenderJenisGangguanUP3 = (data) => {
 
 const chartRenderPenyebabGangguan = (data) => {
     const chartData = {};
+    let totalEntries = 0;
+
     data.forEach(row => {
         const penyebabGangguan = row[fields.select_kelompok_gangguan];
         chartData[penyebabGangguan] = (chartData[penyebabGangguan] || 0) + 1;
+        totalEntries += 1; // Increment total count
     });
 
     const labels = Object.keys(chartData);
@@ -308,16 +327,19 @@ const chartRenderPenyebabGangguan = (data) => {
         options: {
             responsive: true,
             plugins: {
-                title: { display: true, text: 'PENYEBAB GANGGUAN' },
+                title: { 
+                    display: true, 
+                    text: `TOTAL ${formatNumber(totalEntries)} PENYEBAB GANGGUAN` // Include total entries in title
+                },
                 tooltip: {
                     callbacks: {
                         afterLabel: function (tooltipItem) {
-                            return `JUMLAH KESELURUHAN: ${total}`;
+                            return `JUMLAH: ${formatNumber(total)}`;
                         },
                     }
                 },
                 legend: {
-                    position: 'top',
+                    position: 'bottom', // Legend at the bottom
                     labels: {
                         boxWidth: 20,
                         padding: 10,
