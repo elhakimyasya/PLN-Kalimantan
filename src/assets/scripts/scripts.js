@@ -49,12 +49,16 @@ const chartRenderTotalGangguanUP3 = (data) => {
     const chartData = {};
     let totalEntries = 0;
 
-    const selectedBulan = document.querySelector('#select_bulan').value;
+    const selectedBulan = Array.from(document.querySelector('#select_bulan').selectedOptions).map(opt => opt.value);
+
+    const isAllSelected = selectedBulan.includes("0");
+    const filteredBulan = isAllSelected ? formats.months : selectedBulan.map(bulan => bulan.toUpperCase());
+
     data.forEach((row) => {
         const selectUP3 = row[fields.select_up3];
-        const selectBulan = row[fields.select_bulan];
+        const selectBulan = row[fields.select_bulan].toUpperCase();
 
-        if (selectedBulan !== "0" && selectBulan !== selectedBulan) {
+        if (!isAllSelected && !filteredBulan.includes(selectBulan)) {
             return;
         }
 
@@ -64,13 +68,13 @@ const chartRenderTotalGangguanUP3 = (data) => {
         totalEntries += 1;
     });
 
-    const chartLabels = selectedBulan === "0" ? formats.months : [selectedBulan];
+    const chartLabels = isAllSelected ? formats.months : filteredBulan;
     const chartDataSets = [];
 
-    Object.keys(chartData).forEach((data) => {
-        const dataPerBulan = chartLabels.map((bulan) => chartData[data][bulan] || 0);
+    Object.keys(chartData).forEach((dataKey) => {
+        const dataPerBulan = chartLabels.map((bulan) => chartData[dataKey][bulan] || 0);
         chartDataSets.push({
-            label: data,
+            label: dataKey,
             data: dataPerBulan,
             backgroundColor: chartRandomColor(),
         });
@@ -108,6 +112,7 @@ const chartRenderTotalGangguanUP3 = (data) => {
         },
     };
 };
+
 
 const chartRenderJenisGangguanULP = (data) => {
     const chartData = {};
@@ -374,7 +379,7 @@ fetchData({
             dataFiltered = data.filter(row =>
                 Object.entries(fields).every(([selectId, columnIndex]) => {
                     const selectedValues = Array.from(document.getElementById(selectId).selectedOptions).map(opt => opt.value);
-
+                    
                     return selectedValues.includes('0') || selectedValues.includes(row[columnIndex]);
                 })
             );
