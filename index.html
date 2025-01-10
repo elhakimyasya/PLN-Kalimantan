@@ -7,7 +7,17 @@
         <link href="./dist/assets/styles/styles.min.css" rel="stylesheet" />
     </head>
     <body class="bg-colorBackground text-colorText dark:bg-colorDarkBackground dark:text-colorDarkText">
-        <div id="visualization-container" class="mx-auto w-full max-w-6xl p-4">
+        <header class="fixed top-0 z-10 flex min-h-14 w-full flex-col items-start justify-center bg-colorBackground shadow-lg dark:bg-colorDarkBackground xl:min-h-16">
+            <div class="mx-auto flex w-full max-w-6xl flex-row items-center justify-center px-4 py-2">
+                <img class="max-h-9 w-auto ltr:mr-3 rtl:ml-3" src="https://upload.wikimedia.org/wikipedia/commons/9/97/Logo_PLN.png" alt="PLN" />
+                <div class="flex w-full flex-col items-start justify-center">
+                    <h1 class="line-clamp-1 font-bold">Dashboard Gangguan Penyulang</h1>
+                    <h1 class="line-clamp-1 text-sm font-medium text-colorMeta dark:text-colorDarkMeta">PLN UP2D Kalimantan Barat</h1>
+                </div>
+            </div>
+        </header>
+
+        <div id="visualization-container" class="mx-auto w-full max-w-6xl px-4 pb-4 pt-20 xl:pt-24">
             <div class="mb-6 grid w-full grid-cols-2 gap-4 last:mb-0 lg:grid-cols-3 xl:grid-cols-4">
                 <!-- Tahun -->
                 <div class="elcreative_input">
@@ -128,7 +138,7 @@
         <script>
             const config = {
                 initialRangeStart: 1,
-                rowsPerFetch: 18000
+                rowsPerFetch: 18000,
             };
         </script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
