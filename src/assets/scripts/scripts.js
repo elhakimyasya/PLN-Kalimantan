@@ -288,10 +288,10 @@ const tableRenderHealthIndex = (data, elementSelector) => {
         rankingData.sort((dataA, dataB) => dataB.jumlah - dataA.jumlah);
         const totalJumlah = rankingData.reduce((total, row) => total + row.jumlah, 0); // Total Jumlah
 
-        const tableRows = rankingData.map((row, index) => `<tr class="whitespace-nowrap border-b text-center border-colorBorder dark:border-colorDarkBorder"><td class="px-2 py-1.5">${index + 1}</td><td class="px-2 py-1.5 text-start">${row.selectUP3}</td><td class="px-2 py-1.5">${row.jumlah}</td><td class="px-2 py-1.5 ${row.keteranganClass}">${row.keterangan}</td></tr>`).join('');
+        const tableRows = rankingData.map((row, index) => `<tr class="whitespace-nowrap border-b text-center border-colorBorder dark:border-colorDarkBorder"><td class="px-2 py-1.5">${index + 1}</td><td class="px-2 py-1.5 text-start">${row.selectUP3}</td><td class="px-2 py-1.5">${formatNumber(row.jumlah)}</td><td class="px-2 py-1.5 ${row.keteranganClass}">${row.keterangan}</td></tr>`).join('');
 
         // Tambahkan baris TOTAL
-        const totalRow = `<tr class="whitespace-nowrap border-t text-center border-colorBorder dark:border-colorDarkBorder"><td colspan="2" class="px-2 py-1.5 font-bold">TOTAL</td><td class="px-2 py-1.5">${totalJumlah}</td><td class="px-2 py-1.5"></td></tr>`;
+        const totalRow = `<tr class="whitespace-nowrap border-t text-center border-colorBorder dark:border-colorDarkBorder"><td colspan="2" class="px-2 py-1.5 font-bold">TOTAL</td><td class="px-2 py-1.5">${formatNumber(totalJumlah)}</td><td class="px-2 py-1.5"></td></tr>`;
 
         element.innerHTML = `<div class="relative overflow-x-auto shadow-md sm:rounded-lg"><table class="w-full text-sm text-colorMeta dark:text-colorDarkMeta"><thead class="bg-colorMeta/10 text-xs uppercase"><tr>${headers.map(header => `<th scope="col" class="px-6 py-3">${header}</th>`).join('')}</tr></thead><tbody>${tableRows}${totalRow}</tbody></table></div>`;
     }
@@ -357,7 +357,7 @@ const tableRenderHealthIndexDetails = (data, elementSelector) => {
         });
 
         rankingData.sort((dataA, dataB) => dataB.jumlah - dataA.jumlah);
-        const tableRows = rankingData.map((row, index) => `<tr class="whitespace-nowrap border-b text-center border-colorBorder dark:border-colorDarkBorder"><td class="px-2 py-1.5">${index + 1}</td><td class="px-2 py-1.5 text-start">${row.selectUP3}</td><td class="px-2 py-1.5 text-start">${row.selectULP}</td><td class="px-2 py-1.5 text-start">${row.selectPenyulang}</td><td class="px-2 py-1.5">${row.jumlah}</td><td class="px-2 py-1.5 ${row.keteranganClass}">${row.keterangan}</td></tr>`).join('');
+        const tableRows = rankingData.map((row, index) => `<tr class="whitespace-nowrap border-b text-center border-colorBorder dark:border-colorDarkBorder"><td class="px-2 py-1.5">${index + 1}</td><td class="px-2 py-1.5 text-start">${row.selectUP3}</td><td class="px-2 py-1.5 text-start">${row.selectULP}</td><td class="px-2 py-1.5 text-start">${row.selectPenyulang}</td><td class="px-2 py-1.5">${formatNumber(row.jumlah)}</td><td class="px-2 py-1.5 ${row.keteranganClass}">${row.keterangan}</td></tr>`).join('');
 
         element.innerHTML = `<div class="relative overflow-x-auto shadow-md sm:rounded-lg"><table class="w-full text-sm text-colorMeta dark:text-colorDarkMeta"><thead class="bg-colorMeta/10 text-xs uppercase"><tr>${headers.map(header => `<th scope="col" class="px-6 py-3">${header}</th>`).join('')}</tr></thead><tbody>${tableRows}</tbody></table></div>`;
     }
