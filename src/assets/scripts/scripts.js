@@ -278,7 +278,6 @@ const tableRenderHealthIndex = (data, elementSelector) => {
     }
 };
 
-
 const tableRenderHealthIndexDetails = (data, elementSelector) => {
     const element = document.querySelector(elementSelector);
     if (element) {
@@ -353,35 +352,36 @@ fetchData({
     sheetRowEnd: config.rangeEnd || 100,
 }).then((data) => {
     Object.entries(fields).forEach(([selectID, columnIndex]) => {
-        document.getElementById(selectID).innerHTML = `<option value='0'>Semua</option>${selectOptionsRender(selectID, [...new Set(data.map(row => row[columnIndex]))].filter(Boolean)).map(value => `<option value='${value}'>${value}</option>`).join('')}`;
+        const selectElement = document.getElementById(selectID);
+        selectElement.innerHTML = `<option value='0' selected>Semua</option>${selectOptionsRender(selectID, [...new Set(data.map(row => row[columnIndex]))].filter(Boolean)).map(value => `<option value='${value}'>${value}</option>`).join('')}`;
     });
 
-    chartRender(data, '.chart_jenis_gangguan_up3', 'bar', 'TOTAL GANGGUAN', chartRenderTotalGangguanUP3);
-    chartRender(data, '.chart_jenis_gangguan_ulp', 'bar', 'JENIS GANGGUAN', chartRenderJenisGangguanULP);
-    chartRender(data, '.chart_penyebab_gangguan', 'pie', 'PENYEBAB GANGGUAN', chartRenderPenyebabGangguan);
+    const renderAll = (filteredData) => {
+        chartRender(filteredData, '.chart_jenis_gangguan_up3', 'bar', 'TOTAL GANGGUAN', chartRenderTotalGangguanUP3);
+        chartRender(filteredData, '.chart_jenis_gangguan_ulp', 'bar', 'JENIS GANGGUAN', chartRenderJenisGangguanULP);
+        chartRender(filteredData, '.chart_penyebab_gangguan', 'pie', 'PENYEBAB GANGGUAN', chartRenderPenyebabGangguan);
 
-    tableRenderHealthIndex(data, '.table_health_index');
-    tableRenderHealthIndexDetails(data, '.table_health_index_details');
+        tableRenderHealthIndex(filteredData, '.table_health_index');
+        tableRenderHealthIndexDetails(filteredData, '.table_health_index_details');
+    };
 
-    document.querySelectorAll('select').forEach((element) => {
+    renderAll(data);
+
+    document.querySelectorAll('select[multiple]').forEach((element) => {
         element.addEventListener('change', async () => {
             loaders('.loaders', 'show');
 
             dataFiltered = data.filter(row =>
                 Object.entries(fields).every(([selectId, columnIndex]) => {
-                    const selectedValue = document.getElementById(selectId).value;
-                    return selectedValue === "0" || row[columnIndex] === selectedValue;
+                    const selectedValues = Array.from(document.getElementById(selectId).selectedOptions).map(opt => opt.value);
+
+                    return selectedValues.includes("0") || selectedValues.includes(row[columnIndex]);
                 })
             );
 
-            chartRender(dataFiltered, '.chart_jenis_gangguan_up3', 'bar', 'TOTAL GANGGUAN', chartRenderTotalGangguanUP3);
-            chartRender(dataFiltered, '.chart_jenis_gangguan_ulp', 'bar', 'JENIS GANGGUAN', chartRenderJenisGangguanULP);
-            chartRender(dataFiltered, '.chart_penyebab_gangguan', 'pie', 'PENYEBAB GANGGUAN', chartRenderPenyebabGangguan);
-
-            tableRenderHealthIndex(dataFiltered, '.table_health_index');
-            tableRenderHealthIndexDetails(dataFiltered, '.table_health_index_details');
+            renderAll(dataFiltered);
 
             loaders('.loaders', 'hide');
-        })
+        });
     });
 });
