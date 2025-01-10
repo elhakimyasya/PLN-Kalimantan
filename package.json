@@ -5,7 +5,7 @@
   "scripts": {
     "watch": "concurrently 'npm:watch:webpack' 'npm:watch:tailwind' && gulp watch",
     "build": "concurrently 'npm:build:webpack' 'npm:build:tailwind' && gulp build",
-    "watch:webpack": "webpack --mode=development --watch",
+    "watch:webpack": "webpack --mode=production --watch",
     "watch:tailwind": "npx tailwindcss build -i src/assets/styles/styles.css -o dist/assets/styles/styles.min.css --minify --watch",
     "build:webpack": "webpack --mode=production",
     "build:tailwind": "npx tailwindcss build -i src/assets/styles/styles.css -o dist/assets/styles/styles.min.css --minify",
