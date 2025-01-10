@@ -13,7 +13,7 @@ export const fetchData = async (options) => {
 
     if (sheetID && sheetName && sheetAPI) {
         try {
-            const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${sheetName}!${sheetRowStart}${rangeStart}:${sheetRowEnd}${rangeStart + rangeEnd - 1}?alt=json&key=${sheetAPI}`);
+            const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${sheetName}!${sheetRowStart}${rangeStart}:${sheetRowEnd}${rangeEnd}?alt=json&key=${sheetAPI}`);
 
             const data = await response.json();
             if (data.values) {

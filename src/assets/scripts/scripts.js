@@ -235,67 +235,49 @@ const chartRenderPenyebabGangguan = (data) => {
 const tableRenderHealthIndex = (data, elementSelector) => {
     const element = document.querySelector(elementSelector);
     if (element) {
-        const headers = ["NO", "UP3", "JUMLAH", "KETERANGAN"];
-        const colors = {
-            sempurna: "bg-yellow-500 text-white dark:bg-yellow-200",
-            sehat: "bg-green-500 text-white dark:bg-green-200",
-            sakit: "bg-red-500 text-white dark:bg-red-200",
-            kronis: "bg-black text-white",
-        };
-
-        const getKeterangan = (count) => {
-            if (count === 0) return {
-                keterangan: "SEMPURNA", keteranganClass: colors.sempurna
-            };
-
-            if (count >= 1 && count <= 3) return {
-                keterangan: "SEHAT", keteranganClass: colors.sehat
-            };
-
-            if (count >= 4 && count <= 6) return {
-                keterangan: "SAKIT", keteranganClass: colors.sakit
-            };
-
-            return {
-                keterangan: "KRONIS", keteranganClass: colors.kronis
-            };
-        };
+        const headers = ["NO", "UP3", "JUMLAH", "ENS (kWh)"];
 
         const dataDetail = data.reduce((acc, row) => {
             const selectUP3 = row[fields.select_up3];
+            const ensKwh = parseFloat(row[10].trim());
+
             if (!acc[selectUP3]) {
-                acc[selectUP3] = { count: 0, selectUP3 };
+                acc[selectUP3] = {
+                    count: 0, selectUP3,
+                    totalEns: 0
+                };
             }
 
             acc[selectUP3].count += 1;
+            acc[selectUP3].totalEns += ensKwh;
 
             return acc;
         }, {});
 
         const rankingData = Object.values(dataDetail).map((details, index) => {
-            const { count, selectUP3 } = details;
-            const { keterangan, keteranganClass } = getKeterangan(count);
+            const { count, selectUP3, totalEns } = details;
 
             return {
                 no: index + 1,
                 selectUP3,
                 jumlah: count,
-                keterangan,
-                keteranganClass,
+                ensKwh: totalEns,
             };
         });
 
         rankingData.sort((dataA, dataB) => dataB.jumlah - dataA.jumlah);
-        const totalJumlah = rankingData.reduce((total, row) => total + row.jumlah, 0); // Total Jumlah
+        const totalJumlah = rankingData.reduce((total, row) => total + row.jumlah, 0);
+        const totalEns = rankingData.reduce((total, row) => total + row.ensKwh, 0);
 
-        const tableRows = rankingData.map((row, index) => `<tr class="whitespace-nowrap border-b text-center border-colorBorder dark:border-colorDarkBorder"><td class="px-2 py-1.5">${index + 1}</td><td class="px-2 py-1.5 text-start">${row.selectUP3}</td><td class="px-2 py-1.5">${formatNumber(row.jumlah)}</td><td class="px-2 py-1.5 ${row.keteranganClass}">${row.keterangan}</td></tr>`).join('');
+        const tableRows = rankingData.map((row, index) => `<tr class="whitespace-nowrap border-b text-center border-colorBorder dark:border-colorDarkBorder"><td class="px-2 py-1.5">${index + 1}</td><td class="px-2 py-1.5 text-start">${row.selectUP3}</td><td class="px-2 py-1.5">${formatNumber(row.jumlah)}</td><td class="px-2 py-1.5">${formatNumber(row.ensKwh)} kWh</td></tr>`
+        ).join('');
 
-        // Tambahkan baris TOTAL
-        const totalRow = `<tr class="whitespace-nowrap border-t text-center border-colorBorder dark:border-colorDarkBorder"><td colspan="2" class="px-2 py-1.5 font-bold">TOTAL</td><td class="px-2 py-1.5">${formatNumber(totalJumlah)}</td><td class="px-2 py-1.5"></td></tr>`;
+        const totalRow = `<tr class="whitespace-nowrap border-t text-center border-colorBorder dark:border-colorDarkBorder"><td colspan="2" class="px-2 py-1.5 font-bold">TOTAL</td><td class="px-2 py-1.5 font-bold">${formatNumber(totalJumlah)}</td><td class="px-2 py-1.5 font-bold">${formatNumber(totalEns)} kWh</td></tr>`;
 
         element.innerHTML = `<div class="relative overflow-x-auto shadow-md sm:rounded-lg"><table class="w-full text-sm text-colorMeta dark:text-colorDarkMeta"><thead class="bg-colorMeta/10 text-xs uppercase"><tr>${headers.map(header => `<th scope="col" class="px-6 py-3">${header}</th>`).join('')}</tr></thead><tbody>${tableRows}${totalRow}</tbody></table></div>`;
     }
 };
+
 
 const tableRenderHealthIndexDetails = (data, elementSelector) => {
     const element = document.querySelector(elementSelector);
