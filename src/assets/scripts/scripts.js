@@ -153,7 +153,7 @@ const tableRender = (data) => {
 const tableRenderRanking = (data) => {
     const headers = ["NO", "UP3", "ULP", "PENYULANG", "JUMLAH", "KETERANGAN"];
 
-    const up3Details = data.reduce((acc, row) => {
+    const detailUP3 = data.reduce((acc, row) => {
         const up3 = row[fields.select_up3];
         const ulp = row[fields.select_ulp];
         const penyulang = row[fields.select_penyulang];
@@ -168,17 +168,17 @@ const tableRenderRanking = (data) => {
         return acc;
     }, {});
 
-    const rankingData = Object.values(up3Details).map((details, index) => {
+    const rankingData = Object.values(detailUP3).map((details, index) => {
         let keterangan = "";
         let keteranganClass = "";
         const { count, up3, ulp, penyulang } = details;
 
         if (count === 0) {
-            keterangan = "EMAS";
+            keterangan = "SEMPURNA";
             keteranganClass = "bg-yellow-500 text-white dark:bg-yellow-200";
         }
         else if (count >= 1 && count <= 3) {
-            keterangan = "HIJAU";
+            keterangan = "SEHAT";
             keteranganClass = "bg-green-500 text-white dark:bg-green-200";
         }
         else if (count >= 4 && count <= 6) {
@@ -236,49 +236,50 @@ const tableRenderRanking = (data) => {
 const tableRenderRankingHealthIndex = (data) => {
     const headers = ["NO", "UP3", "JUMLAH", "KETERANGAN"];
 
-    const up3Details = data.reduce((acc, row) => {
-        const up3 = row[fields.select_up3];
+    const detailUP3 = data.reduce((acc, row) => {
+        const UP3 = row[fields.select_up3];
         const date = new Date(row[fields.select_date]);
         const month = date.getMonth();
         const year = date.getFullYear();
 
-        const key = `${up3}-${year}-${month}`;
-
+        const key = `${UP3}-${year}-${month}`;
         if (!acc[key]) {
-            acc[key] = { count: 0, up3, month, year };
+            acc[key] = {
+                count: 0, UP3, month, year
+            };
         }
 
         acc[key].count += 1;
         return acc;
     }, {});
 
-    const rankingData = Object.values(up3Details).map((details, index) => {
+    const rankingData = Object.values(detailUP3).map((details, index) => {
         let keterangan = "";
         let keteranganClass = "";
-        const { count, up3 } = details;
+        const { count, UP3 } = details;
 
         // Mendapatkan jumlah total dari semua data untuk skala dinamis
-        const totalCount = Object.values(up3Details).reduce((acc, detail) => acc + detail.count, 0);
-        const averageCount = totalCount / Object.values(up3Details).length;
+        const totalCount = Object.values(detailUP3).reduce((acc, detail) => acc + detail.count, 0);
+        const averageCount = totalCount / Object.values(detailUP3).length;
 
         // Menentukan skala berdasarkan jumlah data
         if (count >= averageCount * 2) {
-            keterangan = "HITAM";
-            keteranganClass = "bg-black text-white"; // Jumlah sangat besar
+            keterangan = "KRONIS";
+            keteranganClass = "bg-black text-white";
         } else if (count >= averageCount * 1.5) {
-            keterangan = "MERAH";
-            keteranganClass = "bg-red-500 text-white dark:bg-red-200"; // Jumlah sangat tinggi
+            keterangan = "SAKIT";
+            keteranganClass = "bg-red-500 text-white dark:bg-red-200";
         } else if (count >= averageCount) {
-            keterangan = "HIJAU";
-            keteranganClass = "bg-green-500 text-white dark:bg-green-200"; // Hijau
+            keterangan = "SEHAT";
+            keteranganClass = "bg-green-500 text-white dark:bg-green-200";
         } else {
-            keterangan = "EMAS";
-            keteranganClass = "bg-yellow-500 text-white dark:bg-yellow-200"; // Emas
+            keterangan = "SEMPURNA";
+            keteranganClass = "bg-yellow-500 text-white dark:bg-yellow-200";
         }
 
         return {
             no: index + 1,
-            up3,
+            UP3,
             jumlah: count,  // Jumlah berdasarkan kombinasi UP3 per bulan
             keterangan,
             keteranganClass,  // Class warna untuk keterangan
@@ -289,31 +290,11 @@ const tableRenderRankingHealthIndex = (data) => {
     rankingData.sort((a, b) => b.jumlah - a.jumlah);
 
     // Render tabel
-    const tableHTML = rankingData.map((row, index) => `
-        <tr class="whitespace-nowrap border-b text-center border-colorBorder dark:border-colorDarkBorder">
-            <td class="px-2 py-1">${index + 1}</td>
-            <td class="px-2 py-1 text-start">${row.up3}</td>
-            <td class="px-2 py-1">${row.jumlah}</td>
-            <td class="px-2 py-1 ${row.keteranganClass}">${row.keterangan}</td>
-        </tr>
-    `).join('');
+    const tableHTML = rankingData.map((row, index) => `<tr class="whitespace-nowrap border-b text-center border-colorBorder dark:border-colorDarkBorder"><td class="px-2 py-1">${index + 1}</td><td class="px-2 py-1 text-start">${row.UP3}</td><td class="px-2 py-1">${row.jumlah}</td><td class="px-2 py-1 ${row.keteranganClass}">${row.keterangan}</td></tr>`).join('');
 
     const tableData = document.getElementById('tableRankingHealth');
     if (tableData) {
-        tableData.innerHTML = `
-            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-                <table class="w-full text-sm text-colorMeta dark:text-colorDarkMeta">
-                    <thead class="bg-colorMeta/10 text-xs uppercase">
-                        <tr>
-                            ${headers.map(header => `<th scope="col" class="px-6 py-3">${header}</th>`).join('')}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${tableHTML}
-                    </tbody>
-                </table>
-            </div>
-        `;
+        tableData.innerHTML = `<div class="relative overflow-x-auto shadow-md sm:rounded-lg"><table class="w-full text-sm text-colorMeta dark:text-colorDarkMeta"><thead class="bg-colorMeta/10 text-xs uppercase"><tr>${headers.map(header => `<th scope="col" class="px-6 py-3">${header}</th>`).join('')}</tr></thead><tbody>${tableHTML}</tbody></table></div>`;
     }
 };
 
