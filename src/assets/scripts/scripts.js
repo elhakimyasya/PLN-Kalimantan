@@ -87,7 +87,7 @@ const chartRenderTotalGangguanUP3 = (data) => {
             plugins: {
                 title: {
                     display: true,
-                    text: `TOTAL ${formatNumber(totalEntries)} GANGGUAN PER BULAN (UP3)`,
+                    text: `TOTAL ${formatNumber(totalEntries)} GANGGUAN (UP3)`,
                 },
                 tooltip: {
                     callbacks: {
