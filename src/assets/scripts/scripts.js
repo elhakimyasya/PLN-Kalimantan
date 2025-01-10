@@ -148,6 +148,101 @@ const tableRender = (data) => {
     }
 };
 
+const tableRenderRanking = (data) => {
+    const headers = ["NO", "UP3", "ULP", "PENYULANG", "JUMLAH", "KETERANGAN"];
+
+    // Hitung jumlah penyebutan berdasarkan kombinasi UP3, ULP, dan Penyulang
+    const up3Details = data.reduce((acc, row) => {
+        const up3 = row[fields.select_up3];
+        const ulp = row[fields.select_ulp];
+        const penyulang = row[fields.select_penyulang];
+
+        // Membuat key kombinasi unik berdasarkan UP3, ULP, dan Penyulang
+        const key = `${up3}-${ulp}-${penyulang}`;
+
+        // Menambahkan data jika kombinasi belum ada
+        if (!acc[key]) {
+            acc[key] = { count: 0, up3, ulp, penyulang };
+        }
+
+        // Menambah jumlah setiap kali ditemukan kombinasi yang sama
+        acc[key].count += 1;
+        return acc;
+    }, {});
+
+    // Format data untuk tabel ranking
+    const rankingData = Object.values(up3Details).map((details, index) => {
+        let keterangan = "";
+        let keteranganClass = "";
+        const { count, up3, ulp, penyulang } = details;
+
+        if (count === 0) {
+            keterangan = "EMAS";
+            keteranganClass = "bg-yellow-500 text-white dark:bg-yellow-200"; // Emas
+        }
+        else if (count >= 1 && count <= 3) {
+            keterangan = "HIJAU";
+            keteranganClass = "bg-green-500 text-white dark:bg-green-200"; // Hijau
+        }
+        else if (count >= 4 && count <= 6) {
+            keterangan = "SAKIT";
+            keteranganClass = "bg-red-500 text-white dark:bg-red-200"; // Merah
+        }
+        else if (count >= 7) {
+            keterangan = "KRONIS";
+            keteranganClass = "bg-black text-white"; // Hitam
+        }
+
+        return {
+            no: index + 1,
+            up3,
+            ulp,
+            penyulang,
+            jumlah: count,  // Jumlah berdasarkan kombinasi UP3, ULP, Penyulang
+            keterangan,
+            keteranganClass,  // Class warna untuk keterangan
+        };
+    });
+
+    // Urutkan data berdasarkan 'jumlah' (count) dari yang rendah ke tinggi
+    rankingData.sort((a, b) => b.jumlah - a.jumlah);
+
+    // Render tabel
+    const tableHTML = rankingData.map((row, index) => `
+        <tr class="whitespace-nowrap border-b text-center border-colorBorder dark:border-colorDarkBorder">
+            <td class="px-2 py-1">${index + 1}</td>
+            <td class="px-2 py-1">${row.up3}</td>
+            <td class="px-2 py-1">${row.ulp}</td>
+            <td class="px-2 py-1">${row.penyulang}</td>
+            <td class="px-2 py-1">${row.jumlah}</td>
+            <td class="px-2 py-1 ${row.keteranganClass}">${row.keterangan}</td>
+        </tr>
+    `).join('');
+
+    const tableData = document.getElementById('tableRanking');
+    if (tableData) {
+        tableData.innerHTML = `
+            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                <table class="w-full text-sm text-colorMeta dark:text-colorDarkMeta">
+                    <thead class="bg-colorMeta/10 text-xs uppercase">
+                        <tr>
+                            ${headers.map(header => `<th scope="col" class="px-6 py-3">${header}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableHTML}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+};
+
+
+
+
+
+
 const chartRenderJenisGangguanULP = (data) => {
     const chartData = {};
     let totalEntries = 0;
@@ -327,8 +422,8 @@ const chartRenderPenyebabGangguan = (data) => {
         options: {
             responsive: true,
             plugins: {
-                title: { 
-                    display: true, 
+                title: {
+                    display: true,
                     text: `TOTAL ${formatNumber(totalEntries)} PENYEBAB GANGGUAN` // Include total entries in title
                 },
                 tooltip: {
@@ -368,6 +463,7 @@ const fetchData = async (rangeStart) => {
             chartRender(filteredData, 'chartJenisGangguanUP3', 'bar', 'JENIS GANGGUAN', chartRenderJenisGangguanUP3);
             chartRender(filteredData, 'chartPenyebabGangguan', 'pie', 'PENYEBAB GANGGUAN', chartRenderPenyebabGangguan);
 
+            tableRenderRanking(filteredData);
         }
     } catch (error) {
         console.error('Error fetching data:', error);
@@ -405,6 +501,8 @@ document.querySelectorAll('select').forEach(element => element.addEventListener(
     chartRender(filteredData, 'chartJenisGangguanULP', 'bar', 'JENIS GANGGUAN', chartRenderJenisGangguanULP);
     chartRender(filteredData, 'chartJenisGangguanUP3', 'bar', 'JENIS GANGGUAN', chartRenderJenisGangguanUP3);
     chartRender(filteredData, 'chartPenyebabGangguan', 'pie', 'PENYEBAB GANGGUAN', chartRenderPenyebabGangguan);
+
+    tableRenderRanking(filteredData);
 
     document.querySelector('.loaders').classList.add('hidden');
     document.documentElement.classList.remove('overflow-hidden');
