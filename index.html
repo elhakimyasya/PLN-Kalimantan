@@ -19,7 +19,6 @@
 
         <div id="visualization-container" class="mx-auto w-full max-w-6xl px-4 pb-4 pt-20 xl:pt-24">
             <div class="mb-6 grid w-full grid-cols-2 gap-4 last:mb-0 lg:grid-cols-3 xl:grid-cols-4">
-                <!-- Tahun -->
                 <div class="elcreative_input">
                     <select id="select_tahun" name="select_tahun">
                         <option value="0" selected="">Semua</option>
@@ -27,7 +26,6 @@
                     <label for="select_tahun">Tahun</label>
                 </div>
 
-                <!-- Bulan -->
                 <div class="elcreative_input">
                     <select id="select_bulan" name="select_bulan">
                         <option value="0" selected="">Semua</option>
@@ -35,7 +33,6 @@
                     <label for="select_bulan">Bulan</label>
                 </div>
 
-                <!-- Tanggal -->
                 <div class="elcreative_input">
                     <select id="select_tanggal" name="select_tanggal">
                         <option value="0" selected="">Semua</option>
@@ -43,7 +40,6 @@
                     <label for="select_tanggal">Tanggal</label>
                 </div>
 
-                <!-- UP3 -->
                 <div class="elcreative_input">
                     <select id="select_up3" name="select_up3">
                         <option value="0" selected="">Semua</option>
@@ -51,7 +47,6 @@
                     <label for="select_up3">UP3</label>
                 </div>
 
-                <!-- ULP -->
                 <div class="elcreative_input">
                     <select id="select_ulp" name="select_ulp">
                         <option value="0" selected="">Semua</option>
@@ -59,7 +54,6 @@
                     <label for="select_ulp">ULP</label>
                 </div>
 
-                <!-- Penyulang -->
                 <div class="elcreative_input">
                     <select id="select_penyulang" name="select_penyulang">
                         <option value="0" selected="">Semua</option>
@@ -67,7 +61,6 @@
                     <label for="select_penyulang">Penyulang</label>
                 </div>
 
-                <!-- Zona -->
                 <div class="elcreative_input">
                     <select id="select_zona" name="select_zona">
                         <option value="0" selected="">Semua</option>
@@ -75,7 +68,6 @@
                     <label for="select_zona">Zona</label>
                 </div>
 
-                <!-- Kelompok Gangguan -->
                 <div class="elcreative_input">
                     <select id="select_kelompok_gangguan" name="select_kelompok_gangguan">
                         <option value="0" selected="">Semua</option>
@@ -83,7 +75,6 @@
                     <label for="select_kelompok_gangguan">Kelompok Gangguan</label>
                 </div>
 
-                <!-- Cuaca -->
                 <div class="elcreative_input">
                     <select id="select_cuaca" name="select_cuaca">
                         <option value="0" selected="">Semua</option>
@@ -91,7 +82,6 @@
                     <label for="select_cuaca">Cuaca</label>
                 </div>
 
-                <!-- Jenis Gangguan -->
                 <div class="elcreative_input">
                     <select id="select_jenis_gangguan" name="select_jenis_gangguan">
                         <option value="0" selected="">Semua</option>
@@ -115,9 +105,14 @@
                     <h2 class="mb-4 text-start text-2xl font-bold last:mb-0">Penyebab Gangguan</h2>
                     <canvas id="chartPenyebabGangguan" class="chart_penyebab_gangguan mb-4 text-start text-3xl font-bold last:mb-0" width="400" height="400"></canvas>
                 </div>
+
+                <div class="flex flex-col items-start justify-center">
+                    <h2 class="mb-4 text-start text-2xl font-bold last:mb-0">Health Index</h2>
+                    <div id="tableRankingHealth" class="w-full"></div>
+                </div>
             </div>
 
-            <h2 class="mb-4 text-start text-2xl font-bold last:mb-0">Ranking Penyulang</h2>
+            <h2 class="mb-4 text-start text-2xl font-bold last:mb-0">Health Index</h2>
             <div id="tableRanking"></div>
 
             <!-- <h2 class="mb-4 text-start text-2xl font-bold last:mb-0">Data</h2>
@@ -136,8 +131,8 @@
 
         <script>
             const config = {
-                initialRangeStart: 1,
-                rowsPerFetch: 18000,
+                rangeStart: 2,
+                rangeEnd: 18000,
             };
         </script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

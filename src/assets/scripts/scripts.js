@@ -1,8 +1,10 @@
+import { loaders } from "./modules/loaders";
+
 const spreadsheetId = '1EyZ0U4_lsD5Xi3IBmNkz2Rgo4LV4OoWC3Ldw2E2GrBM';
 const sheetName = 'Database';
 const apiKey = 'AIzaSyDwiv0JN7BQeuc6XEYLBf_uTHhYZNj-65I';
-const initialRangeStart = config.initialRangeStart || 1;
-const rowsPerFetch = config.rowsPerFetch || 100;
+const rangeStart = config.rangeStart || 1;
+const rangeEnd = config.rangeEnd || 100;
 
 const chartInstances = {};
 
@@ -151,26 +153,21 @@ const tableRender = (data) => {
 const tableRenderRanking = (data) => {
     const headers = ["NO", "UP3", "ULP", "PENYULANG", "JUMLAH", "KETERANGAN"];
 
-    // Hitung jumlah penyebutan berdasarkan kombinasi UP3, ULP, dan Penyulang
     const up3Details = data.reduce((acc, row) => {
         const up3 = row[fields.select_up3];
         const ulp = row[fields.select_ulp];
         const penyulang = row[fields.select_penyulang];
 
-        // Membuat key kombinasi unik berdasarkan UP3, ULP, dan Penyulang
         const key = `${up3}-${ulp}-${penyulang}`;
 
-        // Menambahkan data jika kombinasi belum ada
         if (!acc[key]) {
             acc[key] = { count: 0, up3, ulp, penyulang };
         }
 
-        // Menambah jumlah setiap kali ditemukan kombinasi yang sama
         acc[key].count += 1;
         return acc;
     }, {});
 
-    // Format data untuk tabel ranking
     const rankingData = Object.values(up3Details).map((details, index) => {
         let keterangan = "";
         let keteranganClass = "";
@@ -178,19 +175,19 @@ const tableRenderRanking = (data) => {
 
         if (count === 0) {
             keterangan = "EMAS";
-            keteranganClass = "bg-yellow-500 text-white dark:bg-yellow-200"; // Emas
+            keteranganClass = "bg-yellow-500 text-white dark:bg-yellow-200";
         }
         else if (count >= 1 && count <= 3) {
             keterangan = "HIJAU";
-            keteranganClass = "bg-green-500 text-white dark:bg-green-200"; // Hijau
+            keteranganClass = "bg-green-500 text-white dark:bg-green-200";
         }
         else if (count >= 4 && count <= 6) {
             keterangan = "SAKIT";
-            keteranganClass = "bg-red-500 text-white dark:bg-red-200"; // Merah
+            keteranganClass = "bg-red-500 text-white dark:bg-red-200";
         }
         else if (count >= 7) {
             keterangan = "KRONIS";
-            keteranganClass = "bg-black text-white"; // Hitam
+            keteranganClass = "bg-black text-white";
         }
 
         return {
@@ -198,16 +195,14 @@ const tableRenderRanking = (data) => {
             up3,
             ulp,
             penyulang,
-            jumlah: count,  // Jumlah berdasarkan kombinasi UP3, ULP, Penyulang
+            jumlah: count,
             keterangan,
-            keteranganClass,  // Class warna untuk keterangan
+            keteranganClass,
         };
     });
 
-    // Urutkan data berdasarkan 'jumlah' (count) dari yang rendah ke tinggi
     rankingData.sort((a, b) => b.jumlah - a.jumlah);
 
-    // Render tabel
     const tableHTML = rankingData.map((row, index) => `
         <tr class="whitespace-nowrap border-b text-center border-colorBorder dark:border-colorDarkBorder">
             <td class="px-2 py-1">${index + 1}</td>
@@ -238,9 +233,89 @@ const tableRenderRanking = (data) => {
     }
 };
 
+const tableRenderRankingHealthIndex = (data) => {
+    const headers = ["NO", "UP3", "JUMLAH", "KETERANGAN"];
 
+    const up3Details = data.reduce((acc, row) => {
+        const up3 = row[fields.select_up3];
+        const date = new Date(row[fields.select_date]);
+        const month = date.getMonth();
+        const year = date.getFullYear();
 
+        const key = `${up3}-${year}-${month}`;
 
+        if (!acc[key]) {
+            acc[key] = { count: 0, up3, month, year };
+        }
+
+        acc[key].count += 1;
+        return acc;
+    }, {});
+
+    const rankingData = Object.values(up3Details).map((details, index) => {
+        let keterangan = "";
+        let keteranganClass = "";
+        const { count, up3 } = details;
+
+        // Mendapatkan jumlah total dari semua data untuk skala dinamis
+        const totalCount = Object.values(up3Details).reduce((acc, detail) => acc + detail.count, 0);
+        const averageCount = totalCount / Object.values(up3Details).length;
+
+        // Menentukan skala berdasarkan jumlah data
+        if (count >= averageCount * 2) {
+            keterangan = "HITAM";
+            keteranganClass = "bg-black text-white"; // Jumlah sangat besar
+        } else if (count >= averageCount * 1.5) {
+            keterangan = "MERAH";
+            keteranganClass = "bg-red-500 text-white dark:bg-red-200"; // Jumlah sangat tinggi
+        } else if (count >= averageCount) {
+            keterangan = "HIJAU";
+            keteranganClass = "bg-green-500 text-white dark:bg-green-200"; // Hijau
+        } else {
+            keterangan = "EMAS";
+            keteranganClass = "bg-yellow-500 text-white dark:bg-yellow-200"; // Emas
+        }
+
+        return {
+            no: index + 1,
+            up3,
+            jumlah: count,  // Jumlah berdasarkan kombinasi UP3 per bulan
+            keterangan,
+            keteranganClass,  // Class warna untuk keterangan
+        };
+    });
+
+    // Urutkan data berdasarkan 'jumlah' (count) dari yang tinggi ke rendah
+    rankingData.sort((a, b) => b.jumlah - a.jumlah);
+
+    // Render tabel
+    const tableHTML = rankingData.map((row, index) => `
+        <tr class="whitespace-nowrap border-b text-center border-colorBorder dark:border-colorDarkBorder">
+            <td class="px-2 py-1">${index + 1}</td>
+            <td class="px-2 py-1 text-start">${row.up3}</td>
+            <td class="px-2 py-1">${row.jumlah}</td>
+            <td class="px-2 py-1 ${row.keteranganClass}">${row.keterangan}</td>
+        </tr>
+    `).join('');
+
+    const tableData = document.getElementById('tableRankingHealth');
+    if (tableData) {
+        tableData.innerHTML = `
+            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                <table class="w-full text-sm text-colorMeta dark:text-colorDarkMeta">
+                    <thead class="bg-colorMeta/10 text-xs uppercase">
+                        <tr>
+                            ${headers.map(header => `<th scope="col" class="px-6 py-3">${header}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableHTML}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+};
 
 
 const chartRenderJenisGangguanULP = (data) => {
@@ -447,7 +522,7 @@ const chartRenderPenyebabGangguan = (data) => {
 
 const fetchData = async (rangeStart) => {
     try {
-        const range = `A${rangeStart}:Z${rangeStart + rowsPerFetch - 1}`;
+        const range = `A${rangeStart}:Z${rangeStart + rangeEnd - 1}`;
         const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${sheetName}!${range}?alt=json&key=${apiKey}`);
         const data = await response.json();
 
@@ -464,12 +539,12 @@ const fetchData = async (rangeStart) => {
             chartRender(filteredData, 'chartPenyebabGangguan', 'pie', 'PENYEBAB GANGGUAN', chartRenderPenyebabGangguan);
 
             tableRenderRanking(filteredData);
+            tableRenderRankingHealthIndex(filteredData);
         }
     } catch (error) {
         console.error('Error fetching data:', error);
     } finally {
-        document.querySelector('.loaders').classList.add('hidden');
-        document.documentElement.classList.remove('overflow-hidden');
+        loaders('.loaders', 'hide');
     }
 };
 
@@ -491,8 +566,7 @@ const filterData = async () => {
 };
 
 document.querySelectorAll('select').forEach(element => element.addEventListener('change', async () => {
-    document.querySelector('.loaders').classList.remove('hidden');
-    document.documentElement.classList.add('overflow-hidden');
+    loaders('.loaders', 'show');
 
     await filterData();
 
@@ -503,10 +577,10 @@ document.querySelectorAll('select').forEach(element => element.addEventListener(
     chartRender(filteredData, 'chartPenyebabGangguan', 'pie', 'PENYEBAB GANGGUAN', chartRenderPenyebabGangguan);
 
     tableRenderRanking(filteredData);
+    tableRenderRankingHealthIndex(filteredData);
 
-    document.querySelector('.loaders').classList.add('hidden');
-    document.documentElement.classList.remove('overflow-hidden');
+    loaders('.loaders', 'hide');
 }));
 
 // window.addEventListener('resize', adjustCanvasHeight);
-fetchData(initialRangeStart);
+fetchData(rangeStart);
