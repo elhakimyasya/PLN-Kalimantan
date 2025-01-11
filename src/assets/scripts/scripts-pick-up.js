@@ -112,74 +112,6 @@ const chartRenderArusPickUpPerUP3 = (data) => {
     };
 };
 
-const chartRenderArusPickUpPerKeypoint = (data) => {
-    const chartData = {};
-    let totalEntries = 0;
-
-    const selectedSection = Array.from(document.querySelector('#select_section').selectedOptions).map(opt => opt.value);
-
-    const isAllSelected = selectedSection.includes("0");
-    const filteredUP3 = isAllSelected ? [...new Set(data.map(row => row[fields.select_keypoint]))] : selectedSection;
-
-    data.forEach((row) => {
-        const selectSection = row[fields.select_section];
-        const selectKeyPoint = row[fields.select_keypoint];
-
-        if (!isAllSelected && !filteredUP3.includes(selectKeyPoint)) {
-            return;
-        }
-
-        chartData[selectSection] = chartData[selectSection] || {};
-        chartData[selectSection][selectKeyPoint] = (chartData[selectSection][selectKeyPoint] || 0) + 1;
-
-        totalEntries += 1;
-    });
-
-    const chartLabels = filteredUP3;
-    const chartDataSets = [];
-
-    Object.keys(chartData).forEach((dataKey) => {
-        const dataPerUP3 = chartLabels.map((up3) => chartData[dataKey][up3] || 0);
-        chartDataSets.push({
-            label: dataKey,
-            data: dataPerUP3,
-            backgroundColor: chartRandomColor(),
-        });
-    });
-
-    return {
-        data: {
-            labels: chartLabels,
-            datasets: chartDataSets,
-        },
-        options: {
-            responsive: true,
-            indexAxis: 'y',
-            plugins: {
-                title: {
-                    display: true,
-                    text: `TOTAL ${formatNumber(totalEntries)} ARUS PICK-UP PER UP3`,
-                },
-                tooltip: {
-                    callbacks: {
-                        afterLabel: function (tooltipItem) {
-                            return `TOTAL ARUS PICK-UP: ${formatNumber(tooltipItem.raw)}`;
-                        },
-                    },
-                },
-            },
-            scales: {
-                x: {
-                    beginAtZero: true,
-                },
-                y: {
-                    beginAtZero: true,
-                },
-            },
-        },
-    };
-};
-
 const chartRenderArusPickUpPerFasaNetral = (data) => {
     const chartData = {};
     let totalEntries = 0;
@@ -214,6 +146,10 @@ const chartRenderArusPickUpPerFasaNetral = (data) => {
                 },
                 tooltip: {
                     callbacks: {
+                        label: function (context) {
+                            const value = context.raw;
+                            return `JUMLAH: ${formatNumber(value)} (${((value / chartTotal) * 100).toFixed(2)}%)`;
+                        },
                         afterLabel: function () {
                             return `JUMLAH: ${formatNumber(chartTotal)}`;
                         },
@@ -272,6 +208,11 @@ const chartRenderArusPickUpPerUP3Bulan = (data) => {
         options: {
             responsive: true,
             indexAxis: 'x',
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            stacked: false,
             plugins: {
                 title: {
                     display: true,
@@ -279,9 +220,9 @@ const chartRenderArusPickUpPerUP3Bulan = (data) => {
                 },
                 tooltip: {
                     callbacks: {
-                        afterLabel: function (tooltipItem) {
-                            return `TOTAL ARUS PICK-UP: ${formatNumber(tooltipItem.raw)}`;
-                        },
+                        // afterLabel: function (tooltipItem) {
+                        //     return `TOTAL ARUS PICK-UP: ${formatNumber(tooltipItem.raw)}`;
+                        // },
                     },
                 },
             },
@@ -342,6 +283,11 @@ const chartRenderArusPickUpPerKeypointBulan = (data) => {
         options: {
             responsive: true,
             indexAxis: 'x',
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            stacked: false,
             plugins: {
                 title: {
                     display: true,
@@ -349,9 +295,9 @@ const chartRenderArusPickUpPerKeypointBulan = (data) => {
                 },
                 tooltip: {
                     callbacks: {
-                        afterLabel: function (tooltipItem) {
-                            return `TOTAL ARUS PICK-UP: ${formatNumber(tooltipItem.raw)}`;
-                        },
+                        // afterLabel: function (tooltipItem) {
+                        //     return `TOTAL ARUS PICK-UP: ${formatNumber(tooltipItem.raw)}`;
+                        // },
                     },
                 },
             },
@@ -367,12 +313,97 @@ const chartRenderArusPickUpPerKeypointBulan = (data) => {
     };
 };
 
+const chartRenderArusPickUpStatusTindakLanjut = (data) => {
+    const chartData = {};
+    let totalEntries = 0;
+
+    // Ambil UP3 yang dipilih dari dropdown
+    const selectedUP3 = Array.from(document.querySelector('#select_up3').selectedOptions).map(opt => opt.value);
+
+    const isAllSelected = selectedUP3.includes("0");
+    const filteredUP3 = isAllSelected ? [...new Set(data.map(row => row[fields.select_up3]))] : selectedUP3;
+
+    // Menghitung data tindak lanjut per UP3
+    data.forEach((row) => {
+        const selectTindakLanjut = row[fields.select_tindak_lanjut];
+        const selectUP3 = row[fields.select_up3];
+
+        if (!isAllSelected && !filteredUP3.includes(selectUP3)) {
+            return;
+        }
+
+        chartData[selectTindakLanjut] = chartData[selectTindakLanjut] || {};
+        chartData[selectTindakLanjut][selectUP3] = (chartData[selectTindakLanjut][selectUP3] || 0) + 1;
+
+        totalEntries += 1;
+    });
+
+    const chartLabels = filteredUP3;
+    const chartDataSets = [];
+
+    // Hitung total jumlah tindak lanjut untuk setiap UP3
+    const up3TotalCounts = chartLabels.reduce((acc, up3) => {
+        acc[up3] = Object.values(chartData).reduce((sum, tindakLanjutData) => sum + (tindakLanjutData[up3] || 0), 0);
+        return acc;
+    }, {});
+
+    Object.keys(chartData).forEach((dataKey) => {
+        const dataPerUP3 = chartLabels.map((up3) => chartData[dataKey][up3] || 0);
+        chartDataSets.push({
+            label: dataKey,
+            data: dataPerUP3,
+            backgroundColor: chartRandomColor(),
+        });
+    });
+
+    return {
+        data: {
+            labels: chartLabels,
+            datasets: chartDataSets,
+        },
+        options: {
+            responsive: true,
+            indexAxis: 'x',
+            plugins: {
+                title: {
+                    display: true,
+                    text: `TOTAL ${formatNumber(totalEntries)} TINDAK LANJUT ARUS PICK-UP`,
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            const value = context.raw; // Nilai untuk status tertentu
+
+                            return `JUMLAH: ${formatNumber(value)} (${((value / up3TotalCounts[context.label]) * 100).toFixed(2)}%)`;
+                        },
+                        afterLabel: function () {
+                            return `TOTAL TINDAK LANJUT: ${formatNumber(totalEntries)}`;
+                        },
+                    },
+                },
+                legend: {
+                    position: 'bottom',
+                },
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                },
+                y: {
+                    beginAtZero: true,
+                },
+            },
+        },
+    };
+};
+
+
 const renderAll = (data) => {
     chartRender(data, '.chart_arus_pickup_up3', 'bar', 'ARUS PICK-UP PER UP3', chartRenderArusPickUpPerUP3);
-    chartRender(data, '.chart_arus_pickup_keypoint', 'bar', 'ARUS PICK-UP PER KEYPOINT', chartRenderArusPickUpPerKeypoint);
     chartRender(data, '.chart_arus_pickup_fasa_netral', 'pie', 'ARUS PICK-UP PER FASA NETRAL', chartRenderArusPickUpPerFasaNetral);
     chartRender(data, '.chart_arus_pickup_up3_bulan', 'line', 'ARUS PICK-UP PER BULAN (UP3)', chartRenderArusPickUpPerUP3Bulan);
     chartRender(data, '.chart_arus_pickup_keypoint_bulan', 'line', 'ARUS PICK-UP PER BULAN (KEYPOINT)', chartRenderArusPickUpPerKeypointBulan);
+    chartRender(data, '.chart_arus_pickup_status_tindak_lanjut', 'bar', 'STATUS TINDAK LANJUT ARUS PICK-UP', chartRenderArusPickUpStatusTindakLanjut);
 };
 
 fetchData({
