@@ -70,6 +70,12 @@ const chartRenderArusPickUpPerUP3 = (data) => {
     const chartLabels = filteredUP3;
     const chartDataSets = [];
 
+     // Hitung total jumlah tindak lanjut untuk setiap UP3
+     const up3TotalCounts = chartLabels.reduce((acc, up3) => {
+        acc[up3] = Object.values(chartData).reduce((sum, tindakLanjutData) => sum + (tindakLanjutData[up3] || 0), 0);
+        return acc;
+    }, {});
+
     Object.keys(chartData).forEach((dataKey) => {
         const dataPerUP3 = chartLabels.map((up3) => chartData[dataKey][up3] || 0);
         chartDataSets.push({
@@ -94,8 +100,14 @@ const chartRenderArusPickUpPerUP3 = (data) => {
                 },
                 tooltip: {
                     callbacks: {
-                        afterLabel: function (tooltipItem) {
-                            return `TOTAL ARUS PICK-UP: ${formatNumber(tooltipItem.raw)}`;
+                        label: function (context) {
+                            const value = context.raw;
+                            const percentage = ((value / up3TotalCounts[context.label]) * 100).toFixed(2);
+
+                            return `${context.dataset.label}: ${formatNumber(value)} (${percentage}%)`;
+                        },
+                        afterLabel: function (context) {
+                            return `JUMLAH: ${formatNumber(up3TotalCounts[context.label])}`;
                         },
                     },
                 },
@@ -372,12 +384,13 @@ const chartRenderArusPickUpStatusTindakLanjut = (data) => {
                 tooltip: {
                     callbacks: {
                         label: function (context) {
-                            const value = context.raw; // Nilai untuk status tertentu
+                            const value = context.raw;
+                            const percentage = ((value / up3TotalCounts[context.label]) * 100).toFixed(2);
 
-                            return `JUMLAH: ${formatNumber(value)} (${((value / up3TotalCounts[context.label]) * 100).toFixed(2)}%)`;
+                            return `${context.dataset.label}: ${formatNumber(value)} (${percentage}%)`;
                         },
-                        afterLabel: function () {
-                            return `TOTAL TINDAK LANJUT: ${formatNumber(totalEntries)}`;
+                        afterLabel: function (context) {
+                            return `JUMLAH: ${formatNumber(up3TotalCounts[context.label])}`;
                         },
                     },
                 },
