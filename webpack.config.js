@@ -6,6 +6,7 @@ module.exports = {
     mode: 'production',
     entry: {
         'scripts': './src/assets/scripts/scripts.js',
+        'scripts-pick-up': './src/assets/scripts/scripts-pick-up.js',
     },
     output: {
         clean: false,

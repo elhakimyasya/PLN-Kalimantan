@@ -113,7 +113,6 @@ const chartRenderTotalGangguanUP3 = (data) => {
     };
 };
 
-
 const chartRenderJenisGangguanULP = (data) => {
     const chartData = {};
     let totalEntries = 0;
@@ -362,8 +361,10 @@ fetchData({
     sheetID: '1EyZ0U4_lsD5Xi3IBmNkz2Rgo4LV4OoWC3Ldw2E2GrBM',
     sheetName: 'Database',
     sheetAPI: 'AIzaSyDwiv0JN7BQeuc6XEYLBf_uTHhYZNj-65I',
-    sheetRowStart: config.rangeStart || 1,
-    sheetRowEnd: config.rangeEnd || 100,
+    sheetRowStart: config.sheetRowStart || 'A',
+    sheetRowEnd: config.sheetRowEnd || 'M',
+    rangeStart: config.rangeStart || 1,
+    rangeEnd: config.rangeEnd || 100,
 }).then((data) => {
     renderAll(data);
 
@@ -379,7 +380,7 @@ fetchData({
             dataFiltered = data.filter(row =>
                 Object.entries(fields).every(([selectId, columnIndex]) => {
                     const selectedValues = Array.from(document.getElementById(selectId).selectedOptions).map(opt => opt.value);
-                    
+
                     return selectedValues.includes('0') || selectedValues.includes(row[columnIndex]);
                 })
             );
