@@ -88,6 +88,11 @@ const chartRenderTotalGangguanUP3 = (data) => {
         options: {
             responsive: true,
             indexAxis: 'x',
+            interaction: {
+                mode: 'index',
+                intersect: true,
+            },
+            stacked: false,
             plugins: {
                 title: {
                     display: true,
@@ -95,9 +100,9 @@ const chartRenderTotalGangguanUP3 = (data) => {
                 },
                 tooltip: {
                     callbacks: {
-                        afterLabel: function (tooltipItem) {
-                            return `TOTAL GANGGUAN: ${formatNumber(tooltipItem.raw)}`;
-                        },
+                        // afterLabel: function (tooltipItem) {
+                        //     return `TOTAL GANGGUAN: ${formatNumber(tooltipItem.raw)}`;
+                        // },
                     },
                 },
             },
@@ -151,10 +156,10 @@ const chartRenderJenisGangguanULP = (data) => {
         });
     });
 
-    chartDataSets.push({
-        label: 'TOTAL',
-        data: chartLabels.map(label => chartTotal[label]),
-    });
+    // chartDataSets.push({
+    //     label: 'TOTAL',
+    //     data: chartLabels.map(label => chartTotal[label]),
+    // });
 
     return {
         data: {
@@ -164,6 +169,11 @@ const chartRenderJenisGangguanULP = (data) => {
         options: {
             responsive: true,
             indexAxis: 'y',
+            interaction: {
+                mode: 'index',
+                intersect: true,
+            },
+            stacked: false,
             plugins: {
                 title: {
                     display: true,
@@ -171,9 +181,9 @@ const chartRenderJenisGangguanULP = (data) => {
                 },
                 tooltip: {
                     callbacks: {
-                        afterLabel: function (tooltipItem) {
-                            return `TOTAL JENIS GANGGUAN: ${formatNumber(chartTotal[tooltipItem.label])}`;
-                        }
+                        // afterLabel: function (tooltipItem) {
+                        //     return `TOTAL JENIS GANGGUAN: ${formatNumber(chartTotal[tooltipItem.label])}`;
+                        // }
                     }
                 },
             },

@@ -70,8 +70,8 @@ const chartRenderArusPickUpPerUP3 = (data) => {
     const chartLabels = filteredUP3;
     const chartDataSets = [];
 
-     // Hitung total jumlah tindak lanjut untuk setiap UP3
-     const up3TotalCounts = chartLabels.reduce((acc, up3) => {
+    // Hitung total jumlah tindak lanjut untuk setiap UP3
+    const up3TotalCounts = chartLabels.reduce((acc, up3) => {
         acc[up3] = Object.values(chartData).reduce((sum, tindakLanjutData) => sum + (tindakLanjutData[up3] || 0), 0);
         return acc;
     }, {});
@@ -93,6 +93,11 @@ const chartRenderArusPickUpPerUP3 = (data) => {
         options: {
             responsive: true,
             indexAxis: 'x',
+            interaction: {
+                mode: 'index',
+                intersect: true,
+            },
+            stacked: false,
             plugins: {
                 title: {
                     display: true,
@@ -106,9 +111,9 @@ const chartRenderArusPickUpPerUP3 = (data) => {
 
                             return `${context.dataset.label}: ${formatNumber(value)} (${percentage}%)`;
                         },
-                        afterLabel: function (context) {
-                            return `JUMLAH: ${formatNumber(up3TotalCounts[context.label])}`;
-                        },
+                        // afterLabel: function (context) {
+                        //     return `JUMLAH: ${formatNumber(up3TotalCounts[context.label])}`;
+                        // },
                     },
                 },
             },
@@ -219,7 +224,7 @@ const chartRenderArusPickUpPerUP3Bulan = (data) => {
         },
         options: {
             responsive: true,
-            indexAxis: 'x',
+            indexAxis: 'y',
             interaction: {
                 mode: 'index',
                 intersect: false,
@@ -297,7 +302,7 @@ const chartRenderArusPickUpPerKeypointBulan = (data) => {
             indexAxis: 'x',
             interaction: {
                 mode: 'index',
-                intersect: false,
+                intersect: true,
             },
             stacked: false,
             plugins: {
@@ -376,6 +381,11 @@ const chartRenderArusPickUpStatusTindakLanjut = (data) => {
         options: {
             responsive: true,
             indexAxis: 'x',
+            interaction: {
+                mode: 'index',
+                intersect: true,
+            },
+            stacked: false,
             plugins: {
                 title: {
                     display: true,
@@ -389,9 +399,9 @@ const chartRenderArusPickUpStatusTindakLanjut = (data) => {
 
                             return `${context.dataset.label}: ${formatNumber(value)} (${percentage}%)`;
                         },
-                        afterLabel: function (context) {
-                            return `JUMLAH: ${formatNumber(up3TotalCounts[context.label])}`;
-                        },
+                        // afterLabel: function (context) {
+                        //     return `JUMLAH: ${formatNumber(up3TotalCounts[context.label])}`;
+                        // },
                     },
                 },
                 legend: {
@@ -410,13 +420,137 @@ const chartRenderArusPickUpStatusTindakLanjut = (data) => {
     };
 };
 
+const tableRenderArusPickUpKeypointBulan = (data, elementSelector) => {
+    const element = document.querySelector(elementSelector);
+    if (element) {
+        const headers = ["NO", "KEYPOINT", "JUMLAH"];
+
+        const dataDetail = data.reduce((acc, row) => {
+            const selectKeyPoint = row[fields.select_keypoint];
+
+            if (!acc[selectKeyPoint]) {
+                acc[selectKeyPoint] = {
+                    count: 0, selectKeyPoint,
+                };
+            }
+
+            acc[selectKeyPoint].count += 1;
+
+            return acc;
+        }, {});
+
+        const rankingData = Object.values(dataDetail).map((details, index) => {
+            const { count, selectKeyPoint } = details;
+
+            return {
+                no: index + 1,
+                selectKeyPoint,
+                jumlah: count,
+            };
+        });
+
+        rankingData.sort((dataA, dataB) => dataB.jumlah - dataA.jumlah);
+        const totalJumlah = rankingData.reduce((total, row) => total + row.jumlah, 0);
+
+        const tableRows = rankingData.map((row, index) => `<tr class="whitespace-nowrap border-b text-center border-colorBorder dark:border-colorDarkBorder"><td class="px-2 py-1.5">${index + 1}</td><td class="px-2 py-1.5 text-start">${row.selectKeyPoint}</td><td class="px-2 py-1.5">${formatNumber(row.jumlah)}</td></tr>`
+        ).join('');
+
+        const totalRow = `<tr class="whitespace-nowrap border-t text-center border-colorBorder dark:border-colorDarkBorder"><td colspan="2" class="px-2 py-1.5 font-bold">TOTAL</td><td class="px-2 py-1.5 font-bold">${formatNumber(totalJumlah)}</td></tr>`;
+
+        element.innerHTML = `<div class="relative overflow-x-auto shadow-md sm:rounded-lg"><table class="w-full text-sm text-colorMeta dark:text-colorDarkMeta"><thead class="bg-colorMeta/10 text-xs uppercase"><tr>${headers.map(header => `<th scope="col" class="px-6 py-3">${header}</th>`).join('')}</tr></thead><tbody>${tableRows}${totalRow}</tbody></table></div>`;
+    }
+};
+
+const tableRenderStatusTindakLanjutDetail = (data, elementSelector) => {
+    const element = document.querySelector(elementSelector);
+    if (element) {
+        const headers = ["NO", "UP3", "ULP", "KALI MUNCUL ARUS PICK-UP", "TINDAK LANJUT PICK-UP", "PERSENTASE"];
+        const colors = {
+            hijau: "bg-green-500 text-white dark:bg-green-200",
+            kuning: "bg-yellow-500 text-white dark:bg-yellow-200",
+            merah: "bg-red-500 text-white dark:bg-red-200",
+        };
+
+        const getPersentase = (persentase) => {
+            if (persentase === 100) return colors.hijau;
+            if (persentase >= 80 && persentase < 100) return colors.kuning;
+            return colors.merah;
+        };
+
+        const dataDetail = data.reduce((acc, row) => {
+            const selectUP3 = row[fields.select_up3];
+            const selectULP = row[fields.select_ulp];
+            const tindakLanjut = row[fields.select_tindak_lanjut]?.toUpperCase() === "SUDAH";
+
+            const keys = `${selectUP3}-${selectULP}`;
+            if (!acc[keys]) {
+                acc[keys] = {
+                    count: 0,
+                    tindakLanjutCount: 0,
+                    selectUP3,
+                    selectULP,
+                };
+            }
+
+            acc[keys].count += 1;
+            if (tindakLanjut) acc[keys].tindakLanjutCount += 1;
+
+            return acc;
+        }, {});
+
+        const rankingData = Object.values(dataDetail).map((details, index) => {
+            const { count, tindakLanjutCount, selectUP3, selectULP } = details;
+            const persentase = ((tindakLanjutCount / count) * 100).toFixed(2);
+            const persentaseClass = getPersentase(parseFloat(persentase));
+
+            return {
+                no: index + 1,
+                selectUP3,
+                selectULP,
+                jumlah: count,
+                tindakLanjutCount,
+                persentase,
+                persentaseClass,
+            };
+        });
+
+        rankingData.sort((dataA, dataB) => dataB.jumlah - dataA.jumlah);
+
+        const tableRows = rankingData.map((row, index) => `
+            <tr class="whitespace-nowrap border-b text-center border-colorBorder dark:border-colorDarkBorder">
+                <td class="px-2 py-1.5">${index + 1}</td>
+                <td class="px-2 py-1.5 text-start">${row.selectUP3}</td>
+                <td class="px-2 py-1.5 text-start">${row.selectULP}</td>
+                <td class="px-2 py-1.5">${formatNumber(row.jumlah)}</td>
+                <td class="px-2 py-1.5">${formatNumber(row.tindakLanjutCount)}</td>
+                <td class="px-2 py-1.5 ${row.persentaseClass}">${row.persentase}%</td>
+            </tr>
+        `).join('');
+
+        element.innerHTML = `
+            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                <table class="w-full text-sm text-colorMeta dark:text-colorDarkMeta">
+                    <thead class="bg-colorMeta/10 text-xs uppercase">
+                        <tr>${headers.map(header => `<th scope="col" class="px-6 py-3">${header}</th>`).join('')}</tr>
+                    </thead>
+                    <tbody>${tableRows}</tbody>
+                </table>
+            </div>
+        `;
+    }
+};
+
+
 
 const renderAll = (data) => {
     chartRender(data, '.chart_arus_pickup_up3', 'bar', 'ARUS PICK-UP PER UP3', chartRenderArusPickUpPerUP3);
     chartRender(data, '.chart_arus_pickup_fasa_netral', 'pie', 'ARUS PICK-UP PER FASA NETRAL', chartRenderArusPickUpPerFasaNetral);
-    chartRender(data, '.chart_arus_pickup_up3_bulan', 'line', 'ARUS PICK-UP PER BULAN (UP3)', chartRenderArusPickUpPerUP3Bulan);
-    chartRender(data, '.chart_arus_pickup_keypoint_bulan', 'line', 'ARUS PICK-UP PER BULAN (KEYPOINT)', chartRenderArusPickUpPerKeypointBulan);
+    chartRender(data, '.chart_arus_pickup_up3_bulan', 'bar', 'ARUS PICK-UP PER BULAN (UP3)', chartRenderArusPickUpPerUP3Bulan);
+    // chartRender(data, '.chart_arus_pickup_keypoint_bulan', 'line', 'ARUS PICK-UP PER BULAN (KEYPOINT)', chartRenderArusPickUpPerKeypointBulan);
     chartRender(data, '.chart_arus_pickup_status_tindak_lanjut', 'bar', 'STATUS TINDAK LANJUT ARUS PICK-UP', chartRenderArusPickUpStatusTindakLanjut);
+
+    tableRenderArusPickUpKeypointBulan(data, '.table_arus_pickup_keypoint_bulan');
+    tableRenderStatusTindakLanjutDetail(data, '.table_tindak_lanjut_detail');
 };
 
 fetchData({
