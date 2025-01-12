@@ -650,7 +650,7 @@ const tableRenderStatusTindakLanjutULP1 = (data, elementSelector) => {
             const tindakLanjutSudah = row[fields.select_tindak_lanjut]?.toUpperCase() === "SUDAH";
             const tindakLanjutBelum = row[fields.select_tindak_lanjut]?.toUpperCase() === "BELUM";
 
-            const keys = `${selectUP3}-${selectULP}`; // gabungkan UP3 dan ULP sebagai kunci
+            const keys = `${selectUP3}-${selectULP}`;
             if (!acc[keys]) {
                 acc[keys] = {
                     selectUP3,
@@ -716,12 +716,13 @@ const tableRenderStatusTindakLanjutULP1 = (data, elementSelector) => {
                         <td class="px-2 py-1.5 text-start">${row.selectULP}</td>
                         <td class="px-2 py-1.5">${formatNumber(row.tindakLanjutSudahCount)}</td>
                         <td class="px-2 py-1.5">${formatNumber(row.tindakLanjutBelumCount)}</td>
-                        <td class="px-2 py-1.5">${row.persentase}</td>
+                        <td class="px-2 py-1.5 ${row.persentaseClass}">${row.persentase}</td>
                     </tr>
                 `;
             }).join('');
 
             const totalPersentase = totalCount > 0 ? ((totalSudah / totalCount) * 100).toFixed(2) : "0.00";
+            const persentaseClass = getPersentase(parseFloat(totalPersentase));
 
             return `
                 ${rowsHTML}
@@ -729,7 +730,7 @@ const tableRenderStatusTindakLanjutULP1 = (data, elementSelector) => {
                     <td colspan="2" class="text-center pl-6 py-1.5">${selectUP3}</td>
                     <td class="px-2 py-1.5 text-center">${formatNumber(totalSudah)}</td>
                     <td class="px-2 py-1.5 text-center">${formatNumber(totalBelum)}</td>
-                    <td class="px-2 py-1.5 text-center">${totalPersentase}%</td>
+                    <td class="px-2 py-1.5 text-center ${persentaseClass}">${totalPersentase}%</td>
                 </tr>
             `;
         }).join('');
