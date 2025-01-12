@@ -602,7 +602,7 @@ const tableRenderStatusTindakLanjutULP = (data, elementSelector) => {
         // Sort rankingData jika diperlukan (contoh: berdasarkan jumlah atau persentase)
         // rankingData.sort((dataA, dataB) => parseFloat(dataB.persentase) - parseFloat(dataA.persentase));
 
-        rankingData.sort((dataA, dataB) => dataA.selectULP.localeCompare(dataB.selectULP));
+        rankingData.sort((dataA, dataB) => dataA.selectUP3.localeCompare(dataB.selectUP3));
 
         const tableRows = rankingData.map((row, index) => `
             <tr class="whitespace-nowrap border-b text-center border-colorBorder dark:border-colorDarkBorder">
@@ -628,6 +628,126 @@ const tableRenderStatusTindakLanjutULP = (data, elementSelector) => {
     }
 };
 
+const tableRenderStatusTindakLanjutULP1 = (data, elementSelector) => {
+    const element = document.querySelector(elementSelector);
+    if (element) {
+        const headers = ["NO", "ULP", "SUDAH", "BELUM", "PERSENTASE"];
+        const colors = {
+            hijau: "bg-green-500 text-white dark:bg-green-200",
+            kuning: "bg-yellow-500 text-white dark:bg-yellow-200",
+            merah: "bg-red-500 text-white dark:bg-red-200",
+        };
+
+        const getPersentase = (persentase) => {
+            if (persentase === 100) return colors.hijau;
+            if (persentase >= 80 && persentase < 100) return colors.kuning;
+            return colors.merah;
+        };
+
+        const dataDetail = data.reduce((acc, row) => {
+            const selectUP3 = row[fields.select_up3];
+            const selectULP = row[fields.select_ulp];
+            const tindakLanjutSudah = row[fields.select_tindak_lanjut]?.toUpperCase() === "SUDAH";
+            const tindakLanjutBelum = row[fields.select_tindak_lanjut]?.toUpperCase() === "BELUM";
+
+            const keys = `${selectUP3}-${selectULP}`; // gabungkan UP3 dan ULP sebagai kunci
+            if (!acc[keys]) {
+                acc[keys] = {
+                    selectUP3,
+                    selectULP,
+                    tindakLanjutSudahCount: 0,
+                    tindakLanjutBelumCount: 0,
+                    count: 0,
+                };
+            }
+
+            acc[keys].count += 1;
+            if (tindakLanjutSudah) acc[keys].tindakLanjutSudahCount += 1;
+            if (tindakLanjutBelum) acc[keys].tindakLanjutBelumCount += 1;
+
+            return acc;
+        }, {});
+
+        // Buat daftar ranking untuk setiap UP3 dan ULP
+        const rankingData = Object.values(dataDetail).map((details, index) => {
+            const { selectUP3, selectULP, tindakLanjutSudahCount, tindakLanjutBelumCount, count } = details;
+
+            // Menghitung persentase
+            const percentage = count > 0  ? ((tindakLanjutSudahCount / count) * 100).toFixed(2)  : "0.00";
+            const persentaseClass = getPersentase(parseFloat(percentage));
+
+            return {
+                selectUP3,
+                selectULP,
+                tindakLanjutSudahCount,
+                tindakLanjutBelumCount,
+                jumlah: count,
+                persentase: `${percentage}%`,
+                persentaseClass,
+            };
+        });
+
+        // Urutkan UP3 sesuai urutan yang diinginkan
+        const urutanUP3 = ["PONTIANAK", "MEMPAWAH", "SINGKAWANG", "SANGGAU", "KETAPANG"];
+        
+        // Mengelompokkan berdasarkan UP3 dan urutkan sesuai urutan
+        const groupedData = rankingData.reduce((acc, row) => {
+            if (!acc[row.selectUP3]) {
+                acc[row.selectUP3] = [];
+            }
+            acc[row.selectUP3].push(row);
+            return acc;
+        }, {});
+
+        const tableRows = urutanUP3.map((selectUP3) => {
+            const rows = groupedData[selectUP3] || [];
+            let totalSudah = 0;
+            let totalBelum = 0;
+            let totalCount = 0;
+
+            const rowsHTML = rows.map((row, subIndex) => {
+                totalSudah += row.tindakLanjutSudahCount;
+                totalBelum += row.tindakLanjutBelumCount;
+                totalCount += row.jumlah;
+
+                return `
+                    <tr class="whitespace-nowrap border-b text-center border-colorBorder dark:border-colorDarkBorder">
+                        <td class="px-2 py-1.5">${subIndex + 1}</td>
+                        <td class="px-2 py-1.5 text-start">${row.selectULP}</td>
+                        <td class="px-2 py-1.5">${formatNumber(row.tindakLanjutSudahCount)}</td>
+                        <td class="px-2 py-1.5">${formatNumber(row.tindakLanjutBelumCount)}</td>
+                        <td class="px-2 py-1.5">${row.persentase}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            const totalPersentase = totalCount > 0 ? ((totalSudah / totalCount) * 100).toFixed(2) : "0.00";
+
+            return `
+                ${rowsHTML}
+                <tr class="font-semibold text-colorBackground dark:text-colorBackground bg-colorText dark:bg-colorDarkText">
+                    <td colspan="2" class="text-center pl-6 py-1.5">${selectUP3}</td>
+                    <td class="px-2 py-1.5 text-center">${formatNumber(totalSudah)}</td>
+                    <td class="px-2 py-1.5 text-center">${formatNumber(totalBelum)}</td>
+                    <td class="px-2 py-1.5 text-center">${totalPersentase}%</td>
+                </tr>
+            `;
+        }).join('');
+
+        element.innerHTML = `
+            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                <table class="w-full text-sm text-colorMeta dark:text-colorDarkMeta">
+                    <thead class="bg-colorMeta/10 text-xs uppercase">
+                        <tr>${headers.map(header => `<th scope="col" class="px-6 py-3">${header}</th>`).join('')}</tr>
+                    </thead>
+                    <tbody>${tableRows}</tbody>
+                </table>
+            </div>
+        `;
+    }
+};
+
+
 
 const renderAll = (data) => {
     chartRender(data, '.chart_arus_pickup_up3', 'bar', 'ARUS PICK-UP PER UP3', chartRenderArusPickUpPerUP3);
@@ -639,6 +759,7 @@ const renderAll = (data) => {
     tableRenderArusPickUpKeypointBulan(data, '.table_arus_pickup_keypoint_bulan');
     tableRenderStatusTindakLanjutDetail(data, '.table_tindak_lanjut_detail');
     tableRenderStatusTindakLanjutULP(data, '.table_tindak_lanjut_ulp');
+    tableRenderStatusTindakLanjutULP1(data, '.table_tindak_lanjut_ulp1');
 };
 
 fetchData({
