@@ -464,7 +464,7 @@ const tableRenderArusPickUpKeypointBulan = (data, elementSelector) => {
 const tableRenderStatusTindakLanjutDetail = (data, elementSelector) => {
     const element = document.querySelector(elementSelector);
     if (element) {
-        const headers = ["NO", "UP3", "ULP", "KALI MUNCUL ARUS PICK-UP", "TINDAK LANJUT PICK-UP", "PERSENTASE"];
+        const headers = ["NO", "UP3", "ULP", "SECTION", "KALI MUNCUL ARUS PICK-UP", "TINDAK LANJUT PICK-UP", "PERSENTASE"];
         const colors = {
             hijau: "bg-green-500 text-white dark:bg-green-200",
             kuning: "bg-yellow-500 text-white dark:bg-yellow-200",
@@ -480,15 +480,17 @@ const tableRenderStatusTindakLanjutDetail = (data, elementSelector) => {
         const dataDetail = data.reduce((acc, row) => {
             const selectUP3 = row[fields.select_up3];
             const selectULP = row[fields.select_ulp];
+            const selectSection = row[fields.select_section];
             const tindakLanjut = row[fields.select_tindak_lanjut]?.toUpperCase() === "SUDAH";
 
-            const keys = `${selectUP3}-${selectULP}`;
+            const keys = `${selectUP3}-${selectULP}-${selectSection}`;
             if (!acc[keys]) {
                 acc[keys] = {
                     count: 0,
                     tindakLanjutCount: 0,
                     selectUP3,
                     selectULP,
+                    selectSection,
                 };
             }
 
@@ -499,7 +501,7 @@ const tableRenderStatusTindakLanjutDetail = (data, elementSelector) => {
         }, {});
 
         const rankingData = Object.values(dataDetail).map((details, index) => {
-            const { count, tindakLanjutCount, selectUP3, selectULP } = details;
+            const { count, tindakLanjutCount, selectUP3, selectULP, selectSection } = details;
             const persentase = ((tindakLanjutCount / count) * 100).toFixed(2);
             const persentaseClass = getPersentase(parseFloat(persentase));
 
@@ -507,6 +509,7 @@ const tableRenderStatusTindakLanjutDetail = (data, elementSelector) => {
                 no: index + 1,
                 selectUP3,
                 selectULP,
+                selectSection,
                 jumlah: count,
                 tindakLanjutCount,
                 persentase,
@@ -514,13 +517,14 @@ const tableRenderStatusTindakLanjutDetail = (data, elementSelector) => {
             };
         });
 
-        rankingData.sort((dataA, dataB) => dataB.jumlah - dataA.jumlah);
+        rankingData.sort((dataA, dataB) => parseFloat(dataB.persentase) - parseFloat(dataA.persentase));
 
         const tableRows = rankingData.map((row, index) => `
             <tr class="whitespace-nowrap border-b text-center border-colorBorder dark:border-colorDarkBorder">
                 <td class="px-2 py-1.5">${index + 1}</td>
                 <td class="px-2 py-1.5 text-start">${row.selectUP3}</td>
                 <td class="px-2 py-1.5 text-start">${row.selectULP}</td>
+                <td class="px-2 py-1.5">${row.selectSection}</td>
                 <td class="px-2 py-1.5">${formatNumber(row.jumlah)}</td>
                 <td class="px-2 py-1.5">${formatNumber(row.tindakLanjutCount)}</td>
                 <td class="px-2 py-1.5 ${row.persentaseClass}">${row.persentase}%</td>
