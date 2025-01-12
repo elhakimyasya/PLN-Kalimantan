@@ -602,6 +602,8 @@ const tableRenderStatusTindakLanjutULP = (data, elementSelector) => {
         // Sort rankingData jika diperlukan (contoh: berdasarkan jumlah atau persentase)
         // rankingData.sort((dataA, dataB) => parseFloat(dataB.persentase) - parseFloat(dataA.persentase));
 
+        rankingData.sort((dataA, dataB) => dataA.selectULP.localeCompare(dataB.selectULP));
+
         const tableRows = rankingData.map((row, index) => `
             <tr class="whitespace-nowrap border-b text-center border-colorBorder dark:border-colorDarkBorder">
                 <td class="px-2 py-1.5">${index + 1}</td>
