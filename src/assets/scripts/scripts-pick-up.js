@@ -517,7 +517,7 @@ const tableRenderStatusTindakLanjutDetail = (data, elementSelector) => {
             };
         });
 
-        rankingData.sort((dataA, dataB) => parseFloat(dataB.persentase) - parseFloat(dataA.persentase));
+        rankingData.sort((dataA, dataB) => parseFloat(dataB.tindakLanjutCount) - parseFloat(dataA.tindakLanjutCount));
 
         const tableRows = rankingData.map((row, index) => `
             <tr class="whitespace-nowrap border-b text-center border-colorBorder dark:border-colorDarkBorder">
