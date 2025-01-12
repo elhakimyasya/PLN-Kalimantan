@@ -540,6 +540,91 @@ const tableRenderStatusTindakLanjutDetail = (data, elementSelector) => {
     }
 };
 
+const tableRenderStatusTindakLanjutULP = (data, elementSelector) => {
+    const element = document.querySelector(elementSelector);
+    if (element) {
+        const headers = ["NO", "UP3", "ULP", "SUDAH", "BELUM", "PERSENTASE"];
+        const colors = {
+            hijau: "bg-green-500 text-white dark:bg-green-200",
+            kuning: "bg-yellow-500 text-white dark:bg-yellow-200",
+            merah: "bg-red-500 text-white dark:bg-red-200",
+        };
+
+        const getPersentase = (persentase) => {
+            if (persentase === 100) return colors.hijau;
+            if (persentase >= 80 && persentase < 100) return colors.kuning;
+            return colors.merah;
+        };
+
+        const dataDetail = data.reduce((acc, row) => {
+            const selectUP3 = row[fields.select_up3];
+            const selectULP = row[fields.select_ulp];
+            const tindakLanjutSudah = row[fields.select_tindak_lanjut]?.toUpperCase() === "SUDAH";
+            const tindakLanjutBelum = row[fields.select_tindak_lanjut]?.toUpperCase() === "BELUM";
+
+            const keys = `${selectULP}`;
+            if (!acc[keys]) {
+                acc[keys] = {
+                    selectUP3,
+                    selectULP,
+                    tindakLanjutSudahCount: 0,
+                    tindakLanjutBelumCount: 0,
+                    count: 0,
+                };
+            }
+
+            acc[keys].count += 1;
+            if (tindakLanjutSudah) acc[keys].tindakLanjutSudahCount += 1;
+            if (tindakLanjutBelum) acc[keys].tindakLanjutBelumCount += 1;
+
+            return acc;
+        }, {});
+
+        const rankingData = Object.values(dataDetail).map((details, index) => {
+            const { selectUP3, selectULP, tindakLanjutSudahCount, tindakLanjutBelumCount, count } = details;
+
+            // Menghitung persentase
+            const percentage = count > 0  ? ((tindakLanjutSudahCount / count) * 100).toFixed(2)  : "0.00";
+            const persentaseClass = getPersentase(parseFloat(percentage));
+
+            return {
+                no: index + 1,
+                selectUP3,
+                selectULP,
+                tindakLanjutSudahCount,
+                tindakLanjutBelumCount,
+                jumlah: count,
+                persentase: `${percentage}%`,
+                persentaseClass,
+            };
+        });
+
+        // Sort rankingData jika diperlukan (contoh: berdasarkan jumlah atau persentase)
+        // rankingData.sort((dataA, dataB) => parseFloat(dataB.persentase) - parseFloat(dataA.persentase));
+
+        const tableRows = rankingData.map((row, index) => `
+            <tr class="whitespace-nowrap border-b text-center border-colorBorder dark:border-colorDarkBorder">
+                <td class="px-2 py-1.5">${index + 1}</td>
+                <td class="px-2 py-1.5 text-start">${row.selectUP3}</td>
+                <td class="px-2 py-1.5 text-start">${row.selectULP}</td>
+                <td class="px-2 py-1.5">${formatNumber(row.tindakLanjutSudahCount)}</td>
+                <td class="px-2 py-1.5">${formatNumber(row.tindakLanjutBelumCount)}</td>
+                <td class="px-2 py-1.5">${row.persentase}</td>
+            </tr>
+        `).join('');
+
+        element.innerHTML = `
+            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                <table class="w-full text-sm text-colorMeta dark:text-colorDarkMeta">
+                    <thead class="bg-colorMeta/10 text-xs uppercase">
+                        <tr>${headers.map(header => `<th scope="col" class="px-6 py-3">${header}</th>`).join('')}</tr>
+                    </thead>
+                    <tbody>${tableRows}</tbody>
+                </table>
+            </div>
+        `;
+    }
+};
 
 
 const renderAll = (data) => {
@@ -551,6 +636,7 @@ const renderAll = (data) => {
 
     tableRenderArusPickUpKeypointBulan(data, '.table_arus_pickup_keypoint_bulan');
     tableRenderStatusTindakLanjutDetail(data, '.table_tindak_lanjut_detail');
+    tableRenderStatusTindakLanjutULP(data, '.table_tindak_lanjut_ulp');
 };
 
 fetchData({
