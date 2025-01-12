@@ -758,7 +758,7 @@ const renderAll = (data) => {
 
     tableRenderArusPickUpKeypointBulan(data, '.table_arus_pickup_keypoint_bulan');
     tableRenderStatusTindakLanjutDetail(data, '.table_tindak_lanjut_detail');
-    tableRenderStatusTindakLanjutULP(data, '.table_tindak_lanjut_ulp');
+    // tableRenderStatusTindakLanjutULP(data, '.table_tindak_lanjut_ulp');
     tableRenderStatusTindakLanjutULP1(data, '.table_tindak_lanjut_ulp1');
 };
 
