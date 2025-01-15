@@ -79,7 +79,7 @@ const chartRenderArusPickUpPerUP3 = (data) => {
     Object.keys(chartData).forEach((dataKey) => {
         const dataPerUP3 = chartLabels.map((up3) => chartData[dataKey][up3] || 0);
         chartDataSets.push({
-            label: dataKey,
+            label: dataKey || 'undefined',
             data: dataPerUP3,
             backgroundColor: chartRandomColor(),
         });
@@ -588,7 +588,7 @@ const tableRenderStatusTindakLanjutULP = (data, elementSelector) => {
             const { selectUP3, selectULP, tindakLanjutSudahCount, tindakLanjutBelumCount, count } = details;
 
             // Menghitung persentase
-            const percentage = count > 0  ? ((tindakLanjutSudahCount / count) * 100).toFixed(2)  : "0.00";
+            const percentage = count > 0 ? ((tindakLanjutSudahCount / count) * 100).toFixed(2) : "0.00";
             const persentaseClass = getPersentase(parseFloat(percentage));
 
             return {
@@ -677,7 +677,7 @@ const tableRenderStatusTindakLanjutULP1 = (data, elementSelector) => {
             const { selectUP3, selectULP, tindakLanjutSudahCount, tindakLanjutBelumCount, count } = details;
 
             // Menghitung persentase
-            const percentage = count > 0  ? ((tindakLanjutSudahCount / count) * 100).toFixed(2)  : "0.00";
+            const percentage = count > 0 ? ((tindakLanjutSudahCount / count) * 100).toFixed(2) : "0.00";
             const persentaseClass = getPersentase(parseFloat(percentage));
 
             return {
@@ -693,7 +693,7 @@ const tableRenderStatusTindakLanjutULP1 = (data, elementSelector) => {
 
         // Urutkan UP3 sesuai urutan yang diinginkan
         const urutanUP3 = ["PONTIANAK", "MEMPAWAH", "SINGKAWANG", "SANGGAU", "KETAPANG"];
-        
+
         // Mengelompokkan berdasarkan UP3 dan urutkan sesuai urutan
         const groupedData = rankingData.reduce((acc, row) => {
             if (!acc[row.selectUP3]) {
