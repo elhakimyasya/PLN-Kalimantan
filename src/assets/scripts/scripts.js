@@ -253,7 +253,8 @@ const tableRenderHealthIndex = (data, elementSelector) => {
 
         const dataDetail = data.reduce((acc, row) => {
             const selectUP3 = row[fields.select_up3];
-            const ensKwh = parseFloat(row[10].trim());
+            const ensKwh = (row[12] && typeof row[12] === "string" && row[12].trim() !== "-") ? parseFloat(row[12].replace(/,/g, "").trim()) || 0 : 0;
+
 
             if (!acc[selectUP3]) {
                 acc[selectUP3] = {
